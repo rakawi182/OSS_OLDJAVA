@@ -1,0 +1,17 @@
+# Cadangan otomatis dari update_eop.py
+*.bak-*
+*.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# Berkas data IERS mentah (diunduh sendiri, lihat README)
+bulletina-*.txt
+EOP_*C04*.txt
+
+# Sistem / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
