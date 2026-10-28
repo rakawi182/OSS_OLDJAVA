@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OSS ΩLDJAVA-astro</title>
+<meta name="theme-color" content="#0e1117">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+html,body{height:100%;margin:0;background:#0e1117;color:#c0c8d8;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;text-align:center}
+a{color:#d4b896}
+</style>
+</head>
+<body>
+<div>
+<p>Membuka OSS ΩLDJAVA-astro…</p>
+<p><small>Jika tidak terbuka otomatis, <a id="go" href="OSS_OLDJAVA_R2026_10.html">klik di sini</a>.</small></p>
+</div>
+<script>
+// Ubah nama berkas ini bila versi baru diunggah dengan nama berbeda (samakan dengan APP_FILE di sw.js).
+var APP_FILE = 'OSS_OLDJAVA_R2026_10.html';
+document.getElementById('go').href = APP_FILE;
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  navigator.serviceWorker.register('sw.js').catch(function () {});
+}
+location.replace(APP_FILE);
+</script>
+</body>
+</html>

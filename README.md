@@ -1,6 +1,8 @@
-# OSS ΩLDJAVA-astro
+<p align="center"><img src="icon-192.png" alt="Logo OSS ΩLDJAVA" width="120"></p>
 
-**Jolotundo Research · _exploring the ancient sky_**
+<h1 align="center">OSS ΩLDJAVA-astro</h1>
+
+<p align="center"><b>Jolotundo Research · <i>exploring the ancient sky</i></b></p>
 
 Aplikasi astronomi berbasis web dalam **satu berkas HTML** untuk arkeoastronomi, kalender Jawa Kuno, dan konversi tanggal prasasti. Tidak perlu server, instalasi, atau koneksi internet: cukup buka berkas HTML di browser, termasuk di ponsel.
 
@@ -42,6 +44,20 @@ Hasil uji silang terhadap JPL Horizons (DE441) dan batas keterbatasannya tercant
 
 Ukuran berkas sekitar 7,6 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
 
+## Pasang sebagai aplikasi (PWA)
+
+Aplikasi ini bisa dibuka lewat GitHub Pages dan dipasang di layar utama seperti aplikasi biasa:
+
+**<https://rakawi182.github.io/OSS_OLDJAVA/>**
+
+1. Buka alamat di atas di Chrome (Android) atau Safari (iPhone).
+2. Chrome: menu ⋮ → **Pasang aplikasi** / **Tambahkan ke layar utama**. Safari: **Bagikan** → **Tambah ke Layar Utama**.
+3. Setelah dibuka sekali, aplikasi berjalan **offline**. Setiap kali dibuka, versi terbaru diperiksa di latar belakang dan dipakai pada pembukaan berikutnya.
+
+Mengaktifkan GitHub Pages: **Settings → Pages → Deploy from a branch → main / (root)**.
+
+Jika versi baru diunggah dengan nama berkas berbeda, ubah `APP_FILE` di `sw.js` dan `index.html`. Jika namanya sama, tidak ada yang perlu diubah.
+
 ## Memperbarui data EOP IERS
 
 Data EOP di dalam aplikasi bisa diperbarui tanpa membangun ulang, memakai skrip `update_eop.py` (Python 3; sudah diuji di lingkungan biasa dan dirancang untuk **Pydroid 3** di Android).
@@ -67,8 +83,13 @@ Yang dilakukan skrip: menimpa data final dengan C04 terbaru, menambah rapid dan 
 
 ```
 .
-├── OSS_OLDJAVA_R2026_10.html   # aplikasi (satu berkas)
+├── OSS_OLDJAVA_R2026_10.html     # aplikasi (satu berkas)
 ├── update_eop.py                 # pembaru data EOP IERS
+├── index.html                    # pintu masuk GitHub Pages
+├── manifest.webmanifest          # metadata PWA
+├── sw.js                         # service worker (offline)
+├── icon-192.png  icon-512.png  maskable-512.png
+├── apple-touch-icon.png  favicon.svg   # logo dan ikon
 ├── README.md
 ├── CHANGELOG.md
 ├── CITATION.cff                  # metadata sitasi (tombol "Cite this repository")

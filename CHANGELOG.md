@@ -4,6 +4,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
 ## [R2026_10] — 2026-10-28
 ### Ditambahkan
+- **PWA**: dapat dipasang di layar utama dan berjalan offline (`manifest.webmanifest`, `sw.js`, `index.html`), beserta logo dan set ikon baru.
 - Lapisan **EOP IERS**: DUT1 (UT1 − UTC) dan gerak kutub (xp, yp) diterapkan pada vektor pengamat dan alt/az; DUT1 manual opsional.
 - Kartu **Orientasi Bumi (EOP)** di halaman Referensi: cakupan data C04, Bulletin A rapid, dan Bulletin A prediksi (MJD dan tanggal), serta keterangan pembaruan terakhir.
 - Tab **Tanggal**: ΔT ditampilkan sebagai TT − UT1. Di dalam rentang tabel EOP juga tampil TT − UTC, UT1 − UTC, dan sumber UT1; di luar rentang tampil ΔT model.
