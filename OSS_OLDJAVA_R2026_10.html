@@ -40857,6 +40857,96 @@ App.Units = (function () {
 /* ---------- page ---------- */
 App.render_units = function (main) {
   App.clearRT();
+  if (!App.SakaKA) App.SakaKA = (function () {
+  'use strict';
+  var B = BigInt;
+  function fdiv(a, b) { var q = a / b; if ((a % b !== 0n) && ((a < 0n) !== (b < 0n))) q -= 1n; return q; }
+  function fmod(a, b) { return a - fdiv(a, b) * b; }
+  var YUGA = 4320000n, KS = 3179n;
+  var PS = {
+    ss:  { label: 'Sūryasiddhānta (modern) · Soma · Brahma', moon: 57753336n, cd: 1577917828n },
+    ps:  { label: 'Sūryasiddhānta (Pañcasiddhāntikā) · Khaṇḍakhādyaka', moon: 57753336n, cd: 1577917800n },
+    abh: { label: 'Āryabhaṭīya · Mahābhāskarīya · Laghubhāskarīya · Vaṭeśvara', moon: 57753336n, cd: 1577917500n },
+    sis: { label: 'Pai-siddhānta (Viṣṇu) · Siddhāntaśiromaṇi (Bhāskara II)', moon: 57753300n, cd: 1577917450n }
+  };
+  function par(id) {
+    var p = PS[id] || PS.ss;
+    if (!p.DL) { p.Ms = 12n * YUGA; p.ML = p.moon - YUGA; p.Mt = p.ML - p.Ms; p.DL = 30n * p.ML; p.Do = p.DL - p.cd; }
+    return p;
+  }
+  var MONTHS = ['Caitra', 'Vaiśākha', 'Jyeṣṭha', 'Āṣāḍha', 'Śrāvaṇa', 'Bhādrapada', 'Āśvina', 'Kārttika', 'Mārgaśīrṣa', 'Pauṣa', 'Māgha', 'Phālguna'];
+  var WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var WDS = ['Ravi', 'Soma', 'Maṅgala', 'Budha', 'Guru', 'Śukra', 'Śani'];
+  function wd(KA) { return Number(fmod(B(KA) + 5n, 7n)); }   // KA 0 = Friday
+  function f(p, ms) { return ms + fdiv(ms * p.Mt, p.Ms); }
+  function tithiName(d) { var t = d + 1, ks = t > 15, n = ks ? t - 15 : t; return { t: t, pak: ks ? 'kṛṣṇa' : 'śukla', n: n, special: t === 15 ? 'pūrṇimā' : t === 30 ? 'amāvasyā' : '' }; }
+
+  // KA -> mean lunisolar date (exact integer arithmetic, Sūryasiddhānta-family parameters)
+  function fromKA(KAin, opt) {
+    opt = opt || {}; var p = par(opt.ps), k = B(opt.k || 0), KA = B(KAin);
+    var dL = fdiv(KA * p.DL, p.cd), n = fdiv(dL, 30n), d = dL - 30n * n, nn = n - k;
+    var ms = fdiv(nn * p.Ms, p.Ms + p.Mt) - 3n;
+    while (f(p, ms + 1n) <= nn) ms++;
+    while (f(p, ms) > nn) ms--;
+    var adh = f(p, ms) < nn, msL = adh ? ms + 1n : ms;
+    var frac = Number(fmod(msL * p.Mt, p.Ms)) / Number(p.Ms), edge = Number(p.Mt) / Number(p.Ms) * 1.5;
+    var di = Number(d), tn = tithiName(di), m = Number(fmod(msL, 12n));
+    return { KA: KA, dL: dL, n: n, d: di, ms: msL, adhika: adh, y: fdiv(msL, 12n) - KS, m: m, month: MONTHS[m],
+      purnimanta: (tn.pak === 'kṛṣṇa' && !adh) ? MONTHS[(m + 1) % 12] : null,
+      tithi: tn, wd: wd(KA), nearEdge: frac < edge || frac > 1 - edge, frac: frac };
+  }
+
+  // Forward rules: elapsed Saka year y, months elapsed m (Caitra = 0, nija label), adhika flag, tithis elapsed d (0..29), k = manual intercalation correction
+  var METHODS = [
+    { id: 'kali', name: 'Kali rule (Bhāskara I · Brahmagupta · Lalla · Śrīpati · Bhāskara II)', src: 'Bag 2003 §A; Mahābhāskarīya i.4–6; Sūryasiddhānta i.46–50', epoch: 'Kali epoch', ekA: 0n, ewd: 5, usesPS: true },
+    { id: 'vm1', name: 'Varāhamihira · Rule 1 (Romaka)', src: 'Bag 2003 §B; Pañcasiddhāntikā i.8–10', epoch: 'Saka 427 · Tuesday', ekA: 1317124n, ewd: 2 },
+    { id: 'vm2', name: 'Varāhamihira · Rule 2 (Pauliśa)', src: 'Bag 2003 §B; Pauliśasiddhānta i.12', epoch: 'Saka 427 · Tuesday', ekA: 1317124n, ewd: 2 },
+    { id: 'kk', name: 'Khaṇḍakhādyaka (Brahmagupta)', src: 'Bag 2003 §C; Khaṇḍakhādyaka i.3–5', epoch: 'Saka 587 · Sunday', ekA: 1375565n, ewd: 0 },
+    { id: 'kp', name: 'Karaṇaprakāśa (Brahmadeva)', src: 'Bag 2003 §D; Karaṇaprakāśa i.2–3', epoch: 'Saka 1014 · Sunday', ekA: 1531532n, ewd: 0 },
+    { id: 'krk', name: 'Karaṇakutūhala (Bhāskara II)', src: 'Bag 2003 §E; Karaṇakutūhala i.2–3', epoch: 'Saka 1105 · Thursday', ekA: 1564737n, ewd: 4 },
+    { id: 'gl', name: 'Grahalāghava (Gaṇeśa Daivajña)', src: 'Bag 2003 §F; Uma & Rao 2018 §7', epoch: 'Saka 1442 · Monday', ekA: 1687850n, ewd: 1 }
+  ];
+  function forward(id, o) {
+    var y = B(o.y), m = B(o.m), d = B(o.d), adh = o.adhika ? 1n : 0n, k = B(o.k || 0), p = par(o.ps), M = null;
+    METHODS.forEach(function (x) { if (x.id === id) M = x; });
+    var A, KAm, extra = '';
+    function fin(n, dOf) { var dL = 30n * n + d, dO = dOf(dL); return { dL: dL, dO: dO, A: dL - dO }; }
+    if (id === 'kali') {
+      var ms = 12n * (y + KS) + m, mI = fdiv(ms * p.Mt, p.Ms), n = ms + mI + k - adh;
+      var r = fin(n, function (dL) { return fdiv(dL * p.Do, p.DL); });
+      return { M: M, ms: ms, mI: mI, dL: r.dL, dO: r.dO, A: r.A, KA: r.A, wdRaw: wd(r.A) };
+    }
+    var ms2, mI2, dOf;
+    if (id === 'vm1') { ms2 = 12n * (y - 427n) + m; mI2 = fdiv(7n * ms2, 228n); dOf = function (dL) { return fdiv(11n * dL + 514n, 703n); }; }
+    else if (id === 'vm2') { ms2 = 12n * (y - 427n) + m; mI2 = fdiv(ms2 * 300n + 698n, 9761n); dOf = function (dL) { return fdiv(11n * dL + 444n, 703n); }; }
+    else if (id === 'kk') { ms2 = 12n * (y - 587n) + m; var X = 30n * ms2 + d + 5n; mI2 = fdiv(X - fdiv(X, 14945n), 976n);
+      dOf = function (dL) { var Z = 11n * dL + 497n; return fdiv(Z - fdiv(Z, 111573n), 703n); }; }
+    else if (id === 'kp') { ms2 = 12n * (y - 1014n) + m; mI2 = fdiv((2n * ms2 + 32n) * 915n, 65n * 916n);
+      dOf = function (dL) { var Q = fdiv(dL + 62n, 64n); return Q - fdiv(Q * 2n, 1403n); }; }
+    else if (id === 'krk') { ms2 = 12n * (y - 1105n) + m; var q = 2n * ms2 + 66n; mI2 = fdiv(q - fdiv(q, 900n), 65n);
+      dOf = function (dL) { var Y = dL + 3n; return fdiv(Y + fdiv(Y, 703n), 64n); }; }
+    else if (id === 'gl') {
+      var C = fdiv(y - 1442n, 11n), R = (y - 1442n) - 11n * C, Mm = 12n * R + m, adhi = fdiv(Mm + 2n * C + 10n, 33n);
+      var TM = Mm + adhi + k - adh, MAH = 30n * TM + d + fdiv(C, 6n), KD = fdiv(MAH, 64n), TAH = MAH - KD;
+      var KAg = M.ekA + 4016n * C + TAH;
+      return { M: M, ms: Mm, mI: adhi, dL: MAH, dO: KD, A: TAH, C: C, KA: KAg, wdRaw: wd(KAg) };
+    }
+    var nn = ms2 + mI2 + k - adh, rr = fin(nn, dOf), KAx = M.ekA + rr.A;
+    return { M: M, ms: ms2, mI: mI2, dL: rr.dL, dO: rr.dO, A: rr.A, KA: KAx, wdRaw: wd(KAx) };
+  }
+  // weekday correction (the sources' own test): actual weekday 0..6 (Sun=0); returns -1/0/+1 or null when |diff|>1
+  function wdFix(KAraw, actual) {
+    var diff = Number(fmod(B(actual) - B(wd(KAraw)), 7n));
+    return diff === 0 ? 0 : diff === 1 ? 1 : diff === 6 ? -1 : null;
+  }
+  // Makarandasāriṇī ahargaṇa vallī: KA in sexagesimal (rāśi|aṃśa|kalā|vikalā)
+  function valli(KA) { KA = B(KA); var v4 = fmod(KA, 60n), q = fdiv(KA, 60n), v3 = fmod(q, 60n); q = fdiv(q, 60n); var v2 = fmod(q, 60n), v1 = fdiv(q, 60n); return [v1, v2, v3, v4]; }
+  function unvalli(v) { return B(v[0]) * 216000n + B(v[1]) * 3600n + B(v[2]) * 60n + B(v[3]); }
+  var GL_EPOCH_KA = 1687850n, KRK_EPOCH_KA = 1564737n;
+  function glPair(KA) { var x = B(KA) - GL_EPOCH_KA, C = fdiv(x, 4016n); return { C: C, A: x - 4016n * C }; }
+  return { PS: PS, par: par, MONTHS: MONTHS, WD: WD, WDS: WDS, METHODS: METHODS, fromKA: fromKA, forward: forward, wdFix: wdFix, wd: wd, valli: valli, unvalli: unvalli, glPair: glPair, fdiv: fdiv, fmod: fmod, tithiName: tithiName, GL_EPOCH_KA: GL_EPOCH_KA, KRK_EPOCH_KA: KRK_EPOCH_KA };
+})();
+  function p2(n) { return String(n).padStart(2, '0'); }
   var U = App.Units, SYS = U.SYS, esc = App.esc;
   var st = { tab: 'mx', sys: 'ss', cvA: 'ss', cvB: 'sr2', ovl: { ss: 1, sb: 1, abk: 1, vja: 1, sr2: 1 }, mode: 'sunrise', frozen: false, fms: 0, dsys: 'ss' };
   var badge = function (c, t) { return '<span class="un-b un-b-' + c + '">' + t + '</span>'; };
@@ -40867,7 +40957,7 @@ App.render_units = function (main) {
     + badge('a', 'ATTESTED') + 'stated in the text (bold in Hayashi) ' + badge('d', 'DERIVED') + 'calculated ' + badge('m', 'MODERN') + 'SI seconds, Julian year, engine values.</p>'
     + '<div id="un-tabs" style="margin:10px 0">'
     + '<button class="tab active" data-t="mx">\ud83d\udcd0 Matrix</button><button class="tab" data-t="cv">\ud83d\udd04 Converter</button>'
-    + '<button class="tab" data-t="dl">\ud83e\udded Live Dial</button><button class="tab" data-t="ko">\ud83c\udf0c Cosmic</button><button class="tab" data-t="au">\u2705 Audit</button></div>'
+    + '<button class="tab" data-t="dl">\ud83e\udded Live Dial</button><button class="tab" data-t="ko">\ud83c\udf0c Cosmic</button><button class="tab" data-t="sk">\ud83c\udf19 Saka</button><button class="tab" data-t="au">\u2705 Audit</button></div>'
     + '<div id="un-body"></div>';
 
   var body = main.querySelector('#un-body');
@@ -40878,7 +40968,7 @@ App.render_units = function (main) {
     show();
   });
   function sysOpts(sel, onlyDial) { return SYS.filter(function (s) { return !onlyDial || s.hasDial; }).map(function (s) { return '<option value="' + s.id + '"' + (s.id === sel ? ' selected' : '') + '>' + esc(s.short + ' \u00b7 ' + s.name) + '</option>'; }).join(''); }
-  function show() { App.clearRT(); st.tab === 'mx' ? pMatrix() : st.tab === 'cv' ? pConv() : st.tab === 'dl' ? pDial() : st.tab === 'ko' ? pCosmos() : pAudit(); }
+  function show() { App.clearRT(); st.tab === 'mx' ? pMatrix() : st.tab === 'cv' ? pConv() : st.tab === 'dl' ? pDial() : st.tab === 'ko' ? pCosmos() : st.tab === 'sk' ? pSaka() : pAudit(); }
 
   /* ===== Matrix ===== */
   function pMatrix() {
@@ -41025,9 +41115,157 @@ App.render_units = function (main) {
   }
 
   
+  /* ===== Saka (mean lunisolar, KA based) ===== */
+  function sakaDateStr(e, ka, cal) {
+    var dt = e.ka_to_date(Number(ka), cal), y = dt[0];
+    return y + '-' + p2(dt[1]) + '-' + p2(dt[2]) + ' (' + (y <= 0 ? (1 - y) + ' BC' : y + ' AD') + ', ' + cal + ')';
+  }
+  function sakaCompute(mode, v, e, SK) {
+    var ps = v.ps, k = v.k, out = '', KA, q, base, tuple, main = [], w = [];
+    var fmtKA = function (x) { return App.formatKA(Number(x)); };
+    var MN = SK.MONTHS;
+    if (mode === 'd') {
+      var cal = v.cal === 'auto' ? ((v.y < 1582 || (v.y === 1582 && (v.mo < 10 || (v.mo === 10 && v.d < 15)))) ? 'julian' : 'gregorian') : v.cal;
+      KA = BigInt(e.date_to_ka(v.y, v.mo, v.d, cal));
+      main.push(['Input date', v.y + '-' + p2(v.mo) + '-' + p2(v.d) + ' (' + cal + ', civil day)']);
+    } else if (mode === 'ka') KA = BigInt(v.ka);
+    if (mode === 'd' || mode === 'ka') {
+      q = SK.fromKA(KA, { ps: ps, k: k }); base = KA;
+      tuple = { y: q.y, m: q.m, adhika: q.adhika, d: q.d };
+    } else {
+      var dd = (v.pak === 'k' ? 15 : 0) + v.t - 1;
+      tuple = { y: BigInt(v.sy), m: v.m, adhika: v.adh, d: dd };
+      base = SK.forward('kali', { y: tuple.y, m: tuple.m, adhika: tuple.adhika, d: tuple.d, k: k, ps: ps }).KA;
+    }
+    var rows = '';
+    SK.METHODS.forEach(function (M) {
+      var o = SK.forward(M.id, { y: tuple.y, m: tuple.m, adhika: tuple.adhika, d: tuple.d, k: k, ps: ps }), dl = Number(o.KA - base), note = '';
+      if (Math.abs(dl) > 1) {
+        var best = null;
+        [-1, 0, 1].forEach(function (kk) { var oo = SK.forward(M.id, { y: tuple.y, m: tuple.m, adhika: tuple.adhika, d: tuple.d, k: kk, ps: ps }), dd2 = Number(oo.KA - base); if (kk !== k && (best === null || Math.abs(dd2) < Math.abs(best.dl))) best = { k: kk, dl: dd2 }; });
+        if (best && Math.abs(best.dl) < Math.abs(dl)) note = 'k = ' + (best.k > 0 ? '+' : '') + best.k + ' \u2192 \u0394 ' + best.dl + ' (own intercalation phase)';
+        else note = 'offset of the printed rule';
+      } else if (dl !== 0) note = SK.wd(o.KA) === SK.wd(base) ? '' : 'weekday test \u2192 ' + (dl < 0 ? '+1' : '\u22121');
+      var hl = (mode === 's' && M.id === v.meth) ? ' style="background:rgba(121,192,255,.12)"' : '';
+      rows += '<tr' + hl + '><td style="white-space:normal">' + esc(M.name) + '</td><td>' + esc(M.epoch) + '</td><td>' + fmtKA(o.A) + '</td><td>' + fmtKA(o.KA) + '</td><td class="' + (dl === 0 ? 'ok' : Math.abs(dl) === 1 ? '' : 'err') + '">' + (dl > 0 ? '+' : '') + dl + '</td><td style="white-space:normal" class="dim">' + note + '</td></tr>';
+    });
+    var tbl = '<div class="card un-hud" style="margin-top:10px"><h3>Rules compared <span class="un-b un-b-a">ATTESTED</span><span class="un-b un-b-d">DERIVED</span></h3><div class="tbl-wrap"><table class="data"><thead><tr><th>Rule</th><th>Epoch</th><th>A</th><th>KA</th><th>\u0394</th><th>Note</th></tr></thead><tbody>' + rows + '</tbody></table></div><p class="caption" style="margin-top:6px">Each text\u2019s own arithmetic applied to the same Saka date. \u0394 is against ' + (mode === 's' ? 'the Kali rule' : 'the exact KA') + '. \u00b11 is the mean-calendar tolerance the sources correct with the weekday test; \u00b130 means that text\u2019s mean intercalation falls one lunar month away from the Sūryasiddhānta mean.</p></div>';
+    var KAf = base;
+    if (mode === 's') {
+      var M = null; SK.METHODS.forEach(function (x) { if (x.id === v.meth) M = x; });
+      var o = SK.forward(v.meth, { y: tuple.y, m: tuple.m, adhika: tuple.adhika, d: tuple.d, k: k, ps: ps }), fix = null;
+      main.push(['Rule', esc(M.name) + ' <span class="dim">\u00b7 ' + esc(M.src) + '</span>']);
+      main.push(['Input', 'Saka ' + tuple.y + (tuple.adhika ? ', Adhika ' : ', ') + MN[tuple.m] + ' ' + (v.pak === 'k' ? 'k\u1e5b\u1e63\u1e47a' : '\u015bukla') + ' ' + v.t + ' (months elapsed ' + tuple.m + ', tithis elapsed ' + tuple.d + ')']);
+      main.push(['Intermediates', 'ms = ' + o.ms + ' \u00b7 m\u1d35 = ' + o.mI + ' \u00b7 d\u029f = ' + o.dL + ' \u00b7 d\u2092 = ' + o.dO + ' \u00b7 A = ' + o.A]);
+      KAf = o.KA;
+      main.push(['KA (mean, uncorrected)', fmtKA(o.KA) + ' <span class="dim">\u00b7 ' + SK.WD[SK.wd(o.KA)] + '</span>']);
+      if (v.wd >= 0) {
+        fix = SK.wdFix(o.KA, v.wd);
+        if (fix === null) w.push('Weekday test: the mean result is more than one day from ' + SK.WD[v.wd] + '; check the input (month, adhika, k).');
+        else { KAf = o.KA + BigInt(fix); main.push(['Weekday test', SK.WD[v.wd] + (fix === 0 ? ': no correction' : ': KA ' + (fix > 0 ? '+1' : '\u22121'))]); }
+      }
+      main.push(['KA (final)', '<b>' + fmtKA(KAf) + '</b>']);
+      main.push(['Gregorian', sakaDateStr(e, KAf, 'gregorian')]);
+      main.push(['Julian', sakaDateStr(e, KAf, 'julian')]);
+      main.push(['Weekday', SK.WD[SK.wd(KAf)] + ' (' + SK.WDS[SK.wd(KAf)] + 'vāra)']);
+    } else {
+      main.push(['KA', '<b>' + fmtKA(KA) + '</b>']);
+      main.push(['Gregorian', sakaDateStr(e, KA, 'gregorian')]);
+      main.push(['Julian', sakaDateStr(e, KA, 'julian')]);
+      main.push(['Weekday', SK.WD[q.wd] + ' (' + SK.WDS[q.wd] + 'vāra)']);
+      main.push(['Saka year', q.y + ' elapsed (' + (q.y + 1n) + ' running) \u00b7 Kali year ' + (q.y + 3179n) + ' elapsed']);
+      main.push(['Month (amānta)', (q.adhika ? 'Adhika ' : '') + MN[q.m] + ' <span class="dim">(' + q.m + ' months elapsed in the Saka year)</span>']);
+      main.push(['Month (pūrṇimānta)', q.purnimanta ? q.purnimanta : '\u2014']);
+      main.push(['Fortnight \u00b7 tithi', (q.tithi.pak === 'k\u1e5b\u1e63\u1e47a' ? 'k\u1e5b\u1e63\u1e47a' : '\u015bukla') + ' ' + q.tithi.n + (q.tithi.special ? ' (' + q.tithi.special + ')' : '') + ' <span class="dim">\u00b7 tithi ' + q.tithi.t + ' of 30</span>']);
+      main.push(['Mean tithis since epoch (d\u029f)', String(q.dL)]);
+      main.push(['Lunar months since epoch', String(q.n)]);
+      if (q.nearEdge) w.push('This date lies near a mean intercalary boundary: the true (saṅkrānti-based) month can differ by one lunar month. Try k = \u22121 or +1.');
+    }
+    var vl = SK.valli(KAf).map(String).join(' | '), gp = SK.glPair(KAf);
+    main.push(['Vall\u012b (Makarandas\u0101ri\u1e47\u012b)', vl + ' <span class="dim">\u00b7 KA in base 60: (r\u0101\u015bi | a\u1e43\u015ba | kal\u0101 | vikal\u0101)</span>']);
+    main.push(['Grahal\u0101ghava', 'cakra ' + gp.C + ' \u00b7 ahargaṇa ' + gp.A + ' <span class="dim">(from Saka 1442 epoch, KA ' + fmtKA(SK.GL_EPOCH_KA) + ')</span>']);
+    main.push(['Karaṇakut\u016bhala', 'ahargaṇa ' + fmtKA(KAf - SK.KRK_EPOCH_KA) + ' <span class="dim">(from Saka 1105 epoch, KA ' + fmtKA(SK.KRK_EPOCH_KA) + ')</span>']);
+    out = App.kv(main) + w.map(function (x) { return '<p class="caption" style="color:#e8a468">\u26a0 ' + esc(x) + '</p>'; }).join('') + tbl;
+    return out;
+  }
+  function pSaka() {
+    var SK = App.SakaKA, e = App.engines.wukuEng, t0 = App.nowWIB(), mode = 'd', MN = SK.MONTHS;
+    var opt = function (arr, sel) { return arr.map(function (a, i) { return '<option value="' + a[0] + '"' + (String(a[0]) === String(sel) ? ' selected' : '') + '>' + esc(a[1]) + '</option>'; }).join(''); };
+    var psO = Object.keys(SK.PS).map(function (id) { return [id, SK.PS[id].label]; });
+    body.innerHTML = '<div class="card un-hud"><h3>Saka Calendar \u00b7 mean lunisolar <span class="un-b un-b-d">DERIVED</span></h3>'
+      + '<p class="caption">Original Indian luni-solar Saka calendar (Caitra-initial, am\u0101nta) computed only by the traditional mean-motion arithmetic on the Kali Ahargaṇa (KA). It is independent of the Old-Javanese calendar of the home page.</p>'
+      + '<div id="un-sm" style="margin:6px 0 10px"><button class="tab active" data-m="d">Date</button><button class="tab" data-m="ka">KA</button><button class="tab" data-m="s">Saka date</button></div>'
+      + '<div id="un-sin"></div>'
+      + '<div class="grid3" style="margin-top:8px"><div><label>Parameter set</label><select id="un-sps">' + opt(psO, 'ss') + '</select></div>'
+      + '<div><label>Intercalation correction k</label><select id="un-skc">' + opt([[-1, '\u22121'], [0, '0 (pure mean)'], [1, '+1']], 0) + '</select></div></div>'
+      + '<div class="gn-row"><button class="primary" id="un-sb">Compute</button></div><div id="un-so" class="un-out"></div>'
+      + '<p class="caption" style="margin-top:8px">KA 0 = Friday, 18 Feb 3102 BCE (Julian), mean sunrise at Ujjain (aud\u0101yika); weekday = KA mod 7 counted from Friday. The result is the <em>mean</em> calendar: the tithi can differ from the true tithi by one day and the adhika month by one lunar month; the sources correct this with the weekday test (Saka-date mode) and k.</p></div>';
+    function inputs() {
+      var h = '';
+      if (mode === 'd') h = '<div class="grid3"><div><label>Year (negative = BCE)</label><input id="un-sy" type="number" inputmode="numeric" step="1" value="' + t0.year + '"></div><div><label>Month</label><input id="un-sm2" type="number" inputmode="numeric" min="1" max="12" value="' + t0.month + '"></div><div><label>Day</label><input id="un-sd" type="number" inputmode="numeric" min="1" max="31" value="' + t0.day + '"></div></div><div><label>Calendar</label><select id="un-scal">' + opt([['auto', 'Auto (Julian before 15 Oct 1582)'], ['gregorian', 'Gregorian'], ['julian', 'Julian']], 'auto') + '</select></div>';
+      else if (mode === 'ka') h = '<label>KA (days since the Kali epoch)</label><input id="un-ska" type="number" inputmode="numeric" step="1" value="' + e.date_to_ka(t0.year, t0.month, t0.day) + '">';
+      else h = '<div class="grid3"><div><label>Saka year (elapsed)</label><input id="un-ssy" type="number" inputmode="numeric" step="1" value="1923"></div><div><label>Month (am\u0101nta)</label><select id="un-sms">' + opt(MN.map(function (n, i) { return [i, n]; }), 3) + '</select></div><div><label>Adhika?</label><select id="un-sad">' + opt([[0, 'Nija (regular)'], [1, 'Adhika']], 0) + '</select></div></div>'
+        + '<div class="grid3"><div><label>Fortnight</label><select id="un-spk">' + opt([['k', 'k\u1e5b\u1e63\u1e47a'], ['s', '\u015bukla']], 'k') + '</select></div><div><label>Tithi (1\u201315)</label><input id="un-stt" type="number" inputmode="numeric" min="1" max="15" value="4"></div><div><label>Actual weekday (optional)</label><select id="un-swd">' + opt([[-1, 'none (pure mean)']].concat(SK.WD.map(function (n, i) { return [i, n]; })), -1) + '</select></div></div>'
+        + '<div><label>Rule</label><select id="un-smt">' + opt(SK.METHODS.map(function (m) { return [m.id, m.name]; }), 'gl') + '</select></div>';
+      body.querySelector('#un-sin').innerHTML = h;
+    }
+    function num(id) { var el = body.querySelector('#' + id); return el ? parseFloat(el.value) : NaN; }
+    function sel(id) { var el = body.querySelector('#' + id); return el ? el.value : ''; }
+    function calc() {
+      var o = body.querySelector('#un-so');
+      try {
+        var v = { ps: sel('un-sps'), k: parseInt(sel('un-skc'), 10) };
+        var isInt = function (x) { return isFinite(x) && x === Math.floor(x); };
+        if (mode === 'd') { v.y = num('un-sy'); v.mo = num('un-sm2'); v.d = num('un-sd'); v.cal = sel('un-scal');
+          if (!isInt(v.y) || !isInt(v.mo) || !isInt(v.d) || v.mo < 1 || v.mo > 12 || v.d < 1 || v.d > 31) throw new Error('Invalid date: need integer year, month 1\u201312, day 1\u201331'); }
+        else if (mode === 'ka') { v.ka = num('un-ska'); if (!isInt(v.ka)) throw new Error('KA must be an integer'); }
+        else { v.sy = num('un-ssy'); v.m = parseInt(sel('un-sms'), 10); v.adh = sel('un-sad') === '1'; v.pak = sel('un-spk'); v.t = num('un-stt'); v.wd = parseInt(sel('un-swd'), 10); v.meth = sel('un-smt');
+          if (!isInt(v.sy) || !isInt(v.t) || v.t < 1 || v.t > 15) throw new Error('Invalid Saka date: integer year and tithi 1\u201315'); }
+        o.innerHTML = sakaCompute(mode, v, e, SK);
+      } catch (err) { o.innerHTML = '<span class="err">' + esc(err.message || err) + '</span>'; }
+    }
+    body.querySelector('#un-sm').addEventListener('click', function (ev) {
+      var b = ev.target.closest ? ev.target.closest('button[data-m]') : null; if (!b) return;
+      mode = b.getAttribute('data-m');
+      [].forEach.call(this.querySelectorAll('button'), function (x) { x.classList.toggle('active', x === b); });
+      inputs(); calc();
+    });
+    body.querySelector('#un-sb').onclick = calc;
+    body.querySelector('#un-sps').onchange = calc; body.querySelector('#un-skc').onchange = calc;
+    body.querySelector('#un-sin').addEventListener('change', calc);
+    inputs(); calc();
+  }
+  function sakaTests(e, SK) {
+    var R = [], B = BigInt;
+    function add(n, ok, d) { R.push({ g: 'Saka', n: n, ok: !!ok, d: d }); }
+    [['Kali epoch', -3101, 2, 18, 'julian', 0, 5], ['Var\u0101hamihira epoch (Saka 427)', 505, 3, 22, 'julian', 1317124, 2], ['Khaṇḍakh\u0101dyaka epoch (Saka 587)', 665, 3, 23, 'julian', 1375565, 0],
+      ['Karaṇaprak\u0101\u015ba epoch (Saka 1014)', 1092, 3, 28, 'julian', 1531532, 0], ['Karaṇakut\u016bhala epoch (Saka 1105)', 1183, 2, 24, 'julian', 1564737, 4], ['Grahal\u0101ghava epoch (Saka 1442)', 1520, 3, 19, 'julian', 1687850, 1]].forEach(function (c) {
+      var ka = e.date_to_ka(c[1], c[2], c[3], c[4]); add('Epoch KA: ' + c[0], ka === c[5] && SK.wd(B(ka)) === c[6], c[1] + '-' + c[2] + '-' + c[3] + ' (J) \u2192 KA ' + ka + ', ' + SK.WD[SK.wd(B(ka))] + ' (engine vs Bag 2003 / Uma & Rao 2018)');
+    });
+    var KA1 = B(e.date_to_ka(2001, 7, 10, 'gregorian')), q = SK.fromKA(KA1, {});
+    add('Bag 2003 Example 1: 10 Jul 2001 \u2192 KA 1,863,635, Tuesday', KA1 === 1863635n && SK.wd(KA1) === 2, 'KA ' + KA1);
+    add('Exact inversion of Example 1: d\u029f = 1,893,258, Saka 1923, \u0100\u1e63\u0101\u1e0dha k\u1e5b\u1e63\u1e47a 4', q.dL === 1893258n && q.y === 1923n && q.m === 3 && !q.adhika && q.tithi.n === 4 && q.tithi.pak === 'k\u1e5b\u1e63\u1e47a', 'ms ' + q.ms + ', d ' + q.d + '; Bag\u2019s m = 2 with m\u1d35 rounded up to 1882 gives the same d\u029f');
+    add('Kali rule with Bag\u2019s labelling (m = 2, k = +1) \u2192 1,863,635', SK.forward('kali', { y: 1923, m: 2, d: 18, k: 1, ps: 'ss' }).KA === 1863635n, 'm\u1d35 floor 1881 + 1 = 1882');
+    var bad = 0; for (var K = -80000n; K < 3000000n; K += 997n) { var z = SK.fromKA(K, {}); if (SK.forward('kali', { y: z.y, m: z.m, adhika: z.adhika, d: z.d, k: 0, ps: 'ss' }).KA !== K) bad++; }
+    add('Round trip KA \u2192 Saka date \u2192 KA (3,000+ samples, \u221280,000 to 3,000,000)', bad === 0, bad + ' mismatches');
+    var v2 = SK.forward('vm2', { y: 1923, m: 2, d: 18, k: 1 }); add('Var\u0101hamihira Rule 2: A = 546,511 \u2192 KA 1,863,635', v2.A === 546511n && v2.KA === 1863635n, 'A ' + v2.A);
+    var v1 = SK.forward('vm1', { y: 1923, m: 2, d: 18, k: 1 }); add('Var\u0101hamihira Rule 1: A within 1 of printed 546,511', (v1.A - 546511n === 0n || v1.A - 546511n === -1n), 'A ' + v1.A + ' (the printed d\u2092 8,687 is 8,688.04 by the formula)');
+    var kk = SK.forward('kk', { y: 1923, m: 2, d: 18, k: 1 }); add('Khaṇḍakh\u0101dyaka: A = 488,070 \u2192 KA 1,863,635, weekday test 0', kk.A === 488070n && kk.KA === 1863635n && SK.wdFix(kk.KA, 2) === 0, 'A ' + kk.A + ', d\u2092 ' + kk.dO + ' (Bag prints 7,759; the formula gives 7,758.97 and 488,070 is Bag\u2019s own corrected value)');
+    var kp = SK.forward('kp', { y: 1923, m: 2, d: 18, k: 0 }); add('Karaṇaprak\u0101\u015ba as printed: A = 332,103 \u2192 KA 1,863,635', kp.A === 332103n && kp.KA === 1863635n, 'KA ' + kp.KA + ' (Bag prints 18,63,634, but 15,31,532 + 3,32,103 = 18,63,635)');
+    var kr = SK.forward('krk', { y: 1923, m: 2, d: 18, k: 1 }); add('Karaṇakut\u016bhala: within 1 of KA 1,863,635', (kr.KA - 1863635n === 0n || kr.KA - 1863635n === -1n), 'KA ' + kr.KA + ' (printed d\u2092 4,750; formula gives 4,751)');
+    var g1 = SK.forward('gl', { y: 1534, m: 1, d: 14, k: 0 }), kg = B(e.date_to_ka(1612, 5, 14, 'gregorian'));
+    add('Grahal\u0101ghava Example 7.1: TAH 1,521, Monday, 14 May 1612', g1.A === 1521n && g1.KA === kg && SK.wd(kg) === 1, 'KA ' + g1.KA);
+    var g2 = SK.forward('gl', { y: 1530, m: 7, d: 0, k: 1 }), kg2 = B(e.date_to_ka(1608, 12, 6, 'gregorian'));
+    add('Grahal\u0101ghava Example 7.2: TAH 267, weekday test \u22121, 6 Dec 1608', g2.A === 267n && SK.wdFix(g2.KA, 6) === -1 && g2.KA - 1n === kg2, 'KA ' + (g2.KA - 1n));
+    add('Vall\u012b: KA 1,836,758 = 8|30|12|38 and 8|39|16|58 = 1,869,418', SK.valli(1836758n).join('|') === '8|30|12|38' && SK.unvalli([8, 39, 16, 58]) === 1869418n, 'Uma & Rao 2018 Ex. 6.3, 6.4');
+    var kd = e.date_to_ka(1927, 12, 8, 'gregorian'), gp = SK.glPair(B(kd));
+    add('8 Dec 1927 (Thursday): KA 1,836,757; GL cakra 37, ahargaṇa 315', kd === 1836757 && SK.wd(B(kd)) === 4 && gp.C === 37n && gp.A === 315n, 'Uma & Rao 2018 print 1,836,758 (the raw mean KA, a Friday) and subtract 1,687,851 for the GL epoch; the Saka 1442 epoch is KA 1,687,850, so 148,907 = 1,836,757 \u2212 1,687,850');
+    return R;
+  }
+
 /* ===== Audit ===== */
   function pAudit() {
-    var T = U.runTests(), pass = T.filter(function (t) { return t.ok; }).length;
+    var T = U.runTests().concat(sakaTests(App.engines.wukuEng, App.SakaKA)), pass = T.filter(function (t) { return t.ok; }).length;
     var h = '<div class="card un-hud"><h3>Self-test <span class="' + (pass === T.length ? 'ok' : 'err') + '">' + pass + ' / ' + T.length + ' passed</span></h3><div class="tbl-wrap"><table class="data"><thead><tr><th></th><th>Group</th><th>Test</th><th>Detail</th></tr></thead><tbody>';
     T.forEach(function (t) { h += '<tr><td class="' + (t.ok ? 'ok' : 'err') + '">' + (t.ok ? 'PASS' : 'FAIL') + '</td><td>' + esc(t.g) + '</td><td style="white-space:normal">' + esc(t.n) + '</td><td style="white-space:normal" class="dim">' + esc(t.d) + '</td></tr>'; });
     h += '</tbody></table></div><p class="caption" style="margin-top:6px">Tests re-derive every printed cell from the unit values and check closure of the printed cells themselves; they verify transcription and arithmetic, not the historical claims.</p></div>';

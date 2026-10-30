@@ -25,7 +25,8 @@ Halaman-halaman di dalam aplikasi:
 | Konversi Prasasti | Pencocokan tanggal prasasti Jawa Kuno |
 | Database Damais | Data tanggal prasasti dari Damais |
 | Analisis Sistem Zodiak | Perbandingan sistem zodiak |
-| Konversi Waktu · Offset Waktu · Unit Waktu | Alat bantu waktu |
+| Konversi Waktu · Offset Waktu | Alat bantu waktu |
+| Unit Waktu | Satuan waktu India Kuno dan Abad Pertengahan (Hayashi 2017) dengan sub-tab Matrix, Converter, Live Dial, Cosmic, **Saka**, dan Audit. Sub-tab Saka menghitung kalender lunisolar Saka rata-rata dari Kali Ahargaṇa dengan tiga mode masukan (tanggal, KA, tanggal Saka), tujuh aturan klasik, dan empat set parameter |
 | Referensi | Daftar pustaka, catatan teknis, dan hasil validasi |
 
 Inti perhitungan:
@@ -33,6 +34,7 @@ Inti perhitungan:
 - **Ephemeris:** VSOP87D (Matahari) dan ELP2000-82B (Bulan), dimuat utuh tanpa pemotongan suku.
 - **Presesi dan nutasi:** model IAU 2006 / 2000A.
 - **ΔT:** spline Morrison dkk. (2021) untuk −720 sampai 2019, tabel IERS/EOP setelahnya, dan model Espenak & Meeus sebagai cadangan.
+- **Kalender Saka India (Unit Waktu → Saka):** aritmetika gerak rata-rata tradisional pada Kali Ahargaṇa (KA 0 = Jumat, 18 Februari 3102 SM Julian), dengan bilangan bulat eksak. Aturan dan contoh uji mengikuti Bag (2003) dan Uma & Rao (2018); lihat [`CITATIONS.md`](CITATIONS.md).
 - **EOP IERS:** DUT1 (UT1 − UTC) dan gerak kutub (xp, yp) untuk rentang 1972 sampai akhir tabel.
 
 Hasil uji silang terhadap JPL Horizons (DE441) dan batas keterbatasannya tercantum di halaman **Referensi** di dalam aplikasi.
@@ -42,7 +44,7 @@ Hasil uji silang terhadap JPL Horizons (DE441) dan batas keterbatasannya tercant
 1. Unduh berkas `OSS_OLDJAVA_R2026_10.html` (atau versi terbaru) dari repositori ini.
 2. Buka berkas itu di browser (Chrome, Firefox, Edge, dan sebagainya). Di Android, buka dari aplikasi pengelola berkas.
 
-Ukuran berkas sekitar 7,6 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
+Ukuran berkas sekitar 7,7 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
 
 ## Pasang sebagai aplikasi (PWA)
 
@@ -77,6 +79,7 @@ Yang dilakukan skrip: menimpa data final dengan C04 terbaru, menambah rapid dan 
 - Koreksi dX, dY (≈ 0,5 mas) dan LOD tidak diterapkan.
 - Nilai prediksi EOP dari Bulletin A makin kurang pasti ke arah ujung tabel. Setelah tabel berakhir, UT1 diperlakukan ≈ UTC.
 - Uji verifikasi membuktikan kesesuaian dengan berkas acuan resmi, bukan akurasi absolut.
+- Panel Saka menghasilkan kalender **rata-rata**: tithi dapat berbeda satu hari dari tithi sejati, dan bulan adhika satu bulan lunar, dari hasil astronomis. Panel ini berdiri sendiri dan tidak memakai kalender Jawa Kuno di Beranda.
 - Aplikasi ini alat bantu penelitian. Untuk keperluan publikasi, verifikasi hasil kunci dengan sumber independen.
 
 ## Struktur repositori
@@ -104,7 +107,7 @@ Jika Anda memakai OSS ΩLDJAVA dalam penelitian, kutip repositori ini (lihat `CI
 
 ## Lisensi
 
-Kode di repositori ini dilisensikan di bawah [MIT License](LICENSE). Data dan model pihak ketiga (VSOP87D, ELP2000-82B, data IERS, katalog gerhana NASA, dan lainnya) tetap tunduk pada ketentuan penyedia masing-masing; lihat [`CITATIONS.md`](CITATIONS.md).
+Kode di repositori ini dilisensikan di bawah [MIT License](LICENSE). Data dan model pihak ketiga (VSOP87D, ELP2000-82B, data IERS, katalog gerhana NASA, tabel satuan waktu Hayashi, dan lainnya) tetap tunduk pada ketentuan penyedia masing-masing; lihat [`CITATIONS.md`](CITATIONS.md).
 
 ## Kontribusi
 

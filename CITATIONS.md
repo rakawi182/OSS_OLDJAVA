@@ -50,6 +50,14 @@ Untuk mengutip aplikasi ini, lihat [`CITATION.cff`](CITATION.cff).
 
 Teks primer yang dirujuk lewat Ohashi (1994): Sūryasiddhānta; Brahmagupta, *Brahmasphuṭasiddhānta*; Sphujidhvaja, *Yavana-jātaka*; Varāhamihira, *Pañcasiddhāntikā*; Mahāvīra, *Gaṇita-sāra-saṅgraha*; Śrīpati, *Siddhānta-śekhara*; Bhāskara II, *Siddhānta-śiromaṇi*.
 
+## Satuan waktu dan kalender Saka India
+
+- Hayashi, T. (2017). The Units of Time in Ancient and Medieval India. *History of Science in South Asia*, 5.1, 1–116 (CC BY-SA 4.0). Sumber tabel rasio satuan waktu di tab Unit Waktu.
+- Bag, A.K. (2003). Luni-solar calendar, Kali Ahargana and Julian days. *Indian Journal of History of Science*, 38(1), 17–37. Sumber aturan Kali Ahargaṇa dan contoh uji panel Saka.
+- Uma, S.K. & Rao, S.B. (2018). Ahargaṇa in Makarandasāriṇī and other Indian astronomical texts. *Indian Journal of History of Science*, 53(1), 16–32. DOI: [10.16943/ijhs/2018/v53i1/49361](https://doi.org/10.16943/ijhs/2018/v53i1/49361). Sumber aturan dan contoh Grahalāghava.
+
+Teks primer yang dirujuk lewat Hayashi (2017) dan Bag (2003): Vedāṅgajyotiṣa; Śatapathabrāhmaṇa; Abhidharmakośa; Āryabhaṭīya; Bhāskara I, *Mahābhāskarīya*; Brahmagupta, *Brahmasphuṭasiddhānta* dan *Khaṇḍakhādyaka*; Sūryasiddhānta; Varāhamihira, *Pañcasiddhāntikā*; Vaṭeśvara, *Vaṭeśvarasiddhānta*; Bhāskara II, *Siddhāntaśiromaṇi* dan *Karaṇakutūhala*; Brahmadeva, *Karaṇaprakāśa*; Gaṇeśa Daivajña, *Grahalāghava*.
+
 ## Kalender Jawa-Bali dan epigrafi
 
 - Damais, L.-C. (1955). Études d'épigraphie indonésienne IV: Discussion de la date des inscriptions. *BEFEO*, 47(1), 7–290. DOI: [10.3406/befeo.1955.5406](https://doi.org/10.3406/befeo.1955.5406)
@@ -62,4 +70,4 @@ Teks primer yang dirujuk lewat Ohashi (1994): Sūryasiddhānta; Brahmagupta, *Br
 
 ## Catatan lisensi data pihak ketiga
 
-Kode OSS ΩLDJAVA berlisensi MIT, tetapi data dan seri yang tertanam berasal dari penyedia lain (IMCCE / Observatoire de Paris untuk VSOP87D dan ELP, IERS, NASA, serta publikasi ilmiah di atas). Ketentuan penggunaan dan atribusi mengikuti penyedia masing-masing. Mohon periksa syarat terbaru mereka sebelum mendistribusikan ulang data tersebut secara terpisah dari aplikasi.
+Kode OSS ΩLDJAVA berlisensi MIT, tetapi data dan seri yang tertanam berasal dari penyedia lain (IMCCE / Observatoire de Paris untuk VSOP87D dan ELP, IERS, NASA, serta publikasi ilmiah di atas). Tabel rasio satuan waktu disusun dari Hayashi (2017), yang berlisensi CC BY-SA 4.0; ikuti ketentuan atribusi dan pembagian-serupa lisensi itu bila tabelnya didistribusikan terpisah. Ketentuan penggunaan dan atribusi mengikuti penyedia masing-masing. Mohon periksa syarat terbaru mereka sebelum mendistribusikan ulang data tersebut secara terpisah dari aplikasi.

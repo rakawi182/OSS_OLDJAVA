@@ -2,6 +2,15 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [R2026_10, revisi] — 2026-10-30
+### Ditambahkan
+- Tab **Unit Waktu**: sub-tab **Saka**, kalender lunisolar Saka rata-rata (Caitra-initial, amānta) dari Kali Ahargaṇa. Tiga mode masukan (tanggal, KA, tanggal Saka), tujuh aturan (Kali, Varāhamihira dua aturan, Khaṇḍakhādyaka, Karaṇaprakāśa, Karaṇakutūhala, Grahalāghava), empat set parameter, dan koreksi interkalasi k.
+- 19 uji mandiri Saka di sub-tab **Audit** (epok KA, contoh Bag 2003, contoh Uma & Rao 2018).
+- `CITATIONS.md`: bagian satuan waktu dan kalender Saka India (Hayashi 2017; Bag 2003; Uma & Rao 2018).
+
+### Diubah
+- Ukuran berkas sekitar 7,7 MB. Nama berkas tetap, sehingga `sw.js` dan `index.html` tidak berubah.
+
 ## [R2026_10] — 2026-10-28
 ### Ditambahkan
 - **PWA**: dapat dipasang di layar utama dan berjalan offline (`manifest.webmanifest`, `sw.js`, `index.html`), beserta logo dan set ikon baru.
