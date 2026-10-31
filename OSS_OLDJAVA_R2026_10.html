@@ -3812,6 +3812,7 @@ if (typeof window !== 'undefined') window.ELP82B = ELP82B;
 if (typeof module !== 'undefined' && module.exports) module.exports = { ELP82B };
 </script>
 <script type="text/plain" id="wuku-src">'use strict';
+// PATCH 2026-10: CalendarConverter memakai Math.floor (bukan trunc) agar benar untuk JD negatif / tahun < -4715.
 (function(global) {
 
 // ========================================================================
@@ -3978,47 +3979,47 @@ class CalendarConverter {
             (year === 1582 && month === 10 && day < 15)) {
             B = 0;
         }
-        return pyInt(365.25 * (year + 4716)) + pyInt(30.6001 * (month + 1)) + day + B - 1524.5;
+        return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5;
     }
 
     static jd_to_gregorian(jd) {
         jd += 0.5;
-        const Z = pyInt(jd);
+        const Z = Math.floor(jd);
         const F = jd - Z;
         let A;
         if (Z < 2299161) A = Z;
         else {
-            const alpha = pyInt((Z - 1867216.25) / 36524.25);
+            const alpha = Math.floor((Z - 1867216.25) / 36524.25);
             A = Z + 1 + alpha - pyFloorDiv(alpha, 4);
         }
         const B = A + 1524;
-        const C = pyInt((B - 122.1) / 365.25);
-        const D = pyInt(365.25 * C);
-        const E = pyInt((B - D) / 30.6001);
-        const day = B - D - pyInt(30.6001 * E) + F;
+        const C = Math.floor((B - 122.1) / 365.25);
+        const D = Math.floor(365.25 * C);
+        const E = Math.floor((B - D) / 30.6001);
+        const day = B - D - Math.floor(30.6001 * E) + F;
         const month = (E < 14) ? E - 1 : E - 13;
         const year = (month > 2) ? C - 4716 : C - 4715;
-        return [year, month, pyInt(day)];
+        return [year, month, Math.floor(day)];
     }
 
     static julian_to_jd(year, month, day) {
         if (month <= 2) { year -= 1; month += 12; }
-        return pyInt(365.25 * (year + 4716)) + pyInt(30.6001 * (month + 1)) + day - 1524.5;
+        return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day - 1524.5;
     }
 
     static jd_to_julian(jd) {
         jd += 0.5;
-        const Z = pyInt(jd);
+        const Z = Math.floor(jd);
         const F = jd - Z;
         const A = Z;
         const B = A + 1524;
-        const C = pyInt((B - 122.1) / 365.25);
-        const D = pyInt(365.25 * C);
-        const E = pyInt((B - D) / 30.6001);
-        const day = B - D - pyInt(30.6001 * E) + F;
+        const C = Math.floor((B - 122.1) / 365.25);
+        const D = Math.floor(365.25 * C);
+        const E = Math.floor((B - D) / 30.6001);
+        const day = B - D - Math.floor(30.6001 * E) + F;
         const month = (E < 14) ? E - 1 : E - 13;
         const year = (month > 2) ? C - 4716 : C - 4715;
-        return [year, month, pyInt(day)];
+        return [year, month, Math.floor(day)];
     }
 
     static date_to_jd(year, month, day, cal_type) {
