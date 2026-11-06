@@ -2,6 +2,14 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [R2026_11] — 2026-11-06
+### Diubah
+- Tab **Database Damais** dan **Analisis Sistem Zodiak** digabung menjadi satu tab **Damais & Zodiak**. Tautan lama ke tab Zodiak tetap membuka tab gabungan.
+- Data sāyana / nirayana tidak lagi tetap (hardcode). Kolom Sistem (jam acuan dan ±24 jam), grafik distribusi, tabel per abad Śaka, dan kesimpulan kini dihitung dari run **A2** (nakṣatra), dengan fungsi yang sama dengan panel A2 di tab Audit Damais. Kesimpulan berisi angka hasil run beserta pembanding kebetulan (chance), bukan teks tetap.
+- Kolom Status, KA, dan Skor di tab Damais & Zodiak kini dari run **reverse** (audit B), tidak lagi dari data validasi tetap. Skor kini dihitung langsung dan dapat berbeda sedikit dari angka tetap sebelumnya.
+- Run A2 dan reverse berbagi hasil antara tab Damais & Zodiak dan tab Audit Damais: hasil yang sudah ada langsung ditampilkan tanpa hitung ulang. Tombol **Recompute** (Audit) dan **Hitung ulang** (Damais & Zodiak) memaksa hitung ulang. Hasil tersimpan selama berkas terbuka; setelah dimuat ulang, run perlu diulang.
+- Ukuran berkas sekitar 7,9 MB. Nama berkas berubah menjadi `OSS_OLDJAVA_R2026_11.html`; `APP_FILE` di `sw.js` dan `index.html` disesuaikan, dan nama cache service worker menjadi `oss-oldjava-v2` agar salinan lama dibersihkan.
+
 ## [R2026_10, revisi] — 2026-10-30
 ### Ditambahkan
 - Tab **Unit Waktu**: sub-tab **Saka**, kalender lunisolar Saka rata-rata (Caitra-initial, amānta) dari Kali Ahargaṇa. Tiga mode masukan (tanggal, KA, tanggal Saka), tujuh aturan (Kali, Varāhamihira dua aturan, Khaṇḍakhādyaka, Karaṇaprakāśa, Karaṇakutūhala, Grahalāghava), empat set parameter, dan koreksi interkalasi k.

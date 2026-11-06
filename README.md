@@ -23,8 +23,8 @@ Halaman-halaman di dalam aplikasi:
 | Tanggal Spesifik | Perhitungan untuk satu tanggal dan jam (WIB), termasuk JD, ΔT, dan ayanamsa |
 | Wuku & Wara | Siklus kalender Jawa-Bali |
 | Konversi Prasasti | Pencocokan tanggal prasasti Jawa Kuno |
-| Database Damais | Data tanggal prasasti dari Damais |
-| Analisis Sistem Zodiak | Perbandingan sistem zodiak |
+| Damais & Zodiak | Database tanggal prasasti Damais dan analisis sistem zodiak (sāyana vs nirayana). Kolom Sistem, grafik, dan kesimpulan dihitung dari run A2; Status, KA, dan Skor dari run reverse (audit B), keduanya dijalankan langsung di tab ini |
+| Audit Damais | Uji forward dan reverse konversi terhadap data Damais, termasuk A2 (nakṣatra, yoga, karaṇa) dan prasasti bermasalah. Hasil A2 dan reverse dibagi dengan tab Damais & Zodiak, sehingga tidak dihitung ulang |
 | Konversi Waktu · Offset Waktu | Alat bantu waktu |
 | Unit Waktu | Satuan waktu India Kuno dan Abad Pertengahan (Hayashi 2017) dengan sub-tab Matrix, Converter, Live Dial, Cosmic, **Saka**, dan Audit. Sub-tab Saka menghitung kalender lunisolar Saka rata-rata dari Kali Ahargaṇa dengan tiga mode masukan (tanggal, KA, tanggal Saka), tujuh aturan klasik, dan empat set parameter |
 | Referensi | Daftar pustaka, catatan teknis, dan hasil validasi |
@@ -41,10 +41,10 @@ Hasil uji silang terhadap JPL Horizons (DE441) dan batas keterbatasannya tercant
 
 ## Cara memakai
 
-1. Unduh berkas `OSS_OLDJAVA_R2026_10.html` (atau versi terbaru) dari repositori ini.
+1. Unduh berkas `OSS_OLDJAVA_R2026_11.html` (atau versi terbaru) dari repositori ini.
 2. Buka berkas itu di browser (Chrome, Firefox, Edge, dan sebagainya). Di Android, buka dari aplikasi pengelola berkas.
 
-Ukuran berkas sekitar 7,7 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
+Ukuran berkas sekitar 7,9 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
 
 ## Pasang sebagai aplikasi (PWA)
 
@@ -86,7 +86,7 @@ Yang dilakukan skrip: menimpa data final dengan C04 terbaru, menambah rapid dan 
 
 ```
 .
-├── OSS_OLDJAVA_R2026_10.html     # aplikasi (satu berkas)
+├── OSS_OLDJAVA_R2026_11.html     # aplikasi (satu berkas)
 ├── update_eop.py                 # pembaru data EOP IERS
 ├── index.html                    # pintu masuk GitHub Pages
 ├── manifest.webmanifest          # metadata PWA

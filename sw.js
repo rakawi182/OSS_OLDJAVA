@@ -10,8 +10,8 @@
  *   1) APP_FILE di bawah ini   2) index.html (konstanta APP_FILE)   3) tidak perlu mengubah manifest.
  * Bila nama berkas HTML tetap sama, tidak ada yang perlu diubah.
  */
-const APP_FILE = 'OSS_OLDJAVA_R2026_10.html';
-const CACHE = 'oss-oldjava-v1';
+const APP_FILE = 'OSS_OLDJAVA_R2026_11.html';
+const CACHE = 'oss-oldjava-v2';
 const CORE = [
   APP_FILE,
   'manifest.webmanifest',
