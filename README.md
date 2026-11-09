@@ -19,6 +19,7 @@ Halaman-halaman di dalam aplikasi:
 | Gnomon | Gnomon (Śaṅku), waktu dari bayangan, lagna, dan muhurta Jawa Kuno |
 | Rāśi Chakra | Lingkaran rāśi / zodiak |
 | Grahacara | Posisi graha |
+| Nakṣatra & Tārā | Nakṣatra, yogatārā, dan tārā-maṇḍala dari katalog Hipparcos (8.870 bintang V ≤ 6,5), dengan sub-tab Nakṣatra, Tārā Maṇḍala, Rasi & Posisi, Bintang Hindu, Bulan ↔ Yogatārā, Kartu Bintang, Maṇḍala, dan Validasi |
 | Timeline | Garis waktu astronomis |
 | Tanggal Spesifik | Perhitungan untuk satu tanggal dan jam (WIB), termasuk JD, ΔT, dan ayanamsa |
 | Wuku & Wara | Siklus kalender Jawa-Bali |
@@ -33,6 +34,7 @@ Inti perhitungan:
 
 - **Ephemeris:** VSOP87D (Matahari) dan ELP2000-82B (Bulan), dimuat utuh tanpa pemotongan suku.
 - **Presesi dan nutasi:** model IAU 2006 / 2000A.
+- **Katalog bintang (Nakṣatra & Tārā):** Hipparcos New Reduction (van Leeuwen 2007; CDS I/311) untuk posisi epoch J1991.25, gerak diri jangka panjang Hipparcos–Gaia (HGCA EDR3; Brandt 2021) bila tersedia, dan presesi ke tanggal terpilih. Tabel nakṣatra dan yogatārā mengikuti Mukherji (1969); lihat [`CITATIONS.md`](CITATIONS.md).
 - **ΔT:** spline Morrison dkk. (2021) untuk −720 sampai 2019, tabel IERS/EOP setelahnya, dan model Espenak & Meeus sebagai cadangan.
 - **Kalender Saka India (Unit Waktu → Saka):** aritmetika gerak rata-rata tradisional pada Kali Ahargaṇa (KA 0 = Jumat, 18 Februari 3102 SM Julian), dengan bilangan bulat eksak. Aturan dan contoh uji mengikuti Bag (2003) dan Uma & Rao (2018); lihat [`CITATIONS.md`](CITATIONS.md).
 - **EOP IERS:** DUT1 (UT1 − UTC) dan gerak kutub (xp, yp) untuk rentang 1972 sampai akhir tabel.
@@ -44,7 +46,7 @@ Hasil uji silang terhadap JPL Horizons (DE441) dan batas keterbatasannya tercant
 1. Unduh berkas `OSS_OLDJAVA_R2026_11.html` (atau versi terbaru) dari repositori ini.
 2. Buka berkas itu di browser (Chrome, Firefox, Edge, dan sebagainya). Di Android, buka dari aplikasi pengelola berkas.
 
-Ukuran berkas sekitar 7,9 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
+Ukuran berkas sekitar 8,7 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
 
 ## Pasang sebagai aplikasi (PWA)
 

@@ -3,8 +3,8 @@ message: "Jika Anda memakai OSS ΩLDJAVA dalam penelitian, mohon kutip sebagai b
 title: "OSS ΩLDJAVA-astro"
 abstract: >-
   Aplikasi astronomi web satu berkas HTML (tanpa server, tanpa instalasi) untuk
-  arkeoastronomi, kalender Jawa Kuno, konversi prasasti, serta satuan waktu dan
-  kalender Saka India. Menggabungkan
+  arkeoastronomi, kalender Jawa Kuno, konversi prasasti, satuan waktu dan
+  kalender Saka India, serta nakṣatra dan yogatārā dari katalog Hipparcos. Menggabungkan
   ephemeris VSOP87D dan ELP2000-82B, presesi-nutasi IAU 2006/2000A, model ΔT
   historis, serta lapisan EOP IERS (DUT1 dan gerak kutub).
 type: software
@@ -18,7 +18,7 @@ repository-code: "https://github.com/rakawi182/OSS_OLDJAVA"
 url: "https://github.com/rakawi182/OSS_OLDJAVA"
 license: MIT
 version: "R2026_11"
-date-released: "2026-11-06"
+date-released: "2026-11-09"
 keywords:
   - archaeoastronomy
   - Old Javanese
@@ -29,3 +29,5 @@ keywords:
   - epigraphy
   - Saka calendar
   - Kali Ahargana
+  - nakshatra
+  - Hipparcos

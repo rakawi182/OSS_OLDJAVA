@@ -58,6 +58,22 @@ Teks primer yang dirujuk lewat Ohashi (1994): Sūryasiddhānta; Brahmagupta, *Br
 
 Teks primer yang dirujuk lewat Hayashi (2017) dan Bag (2003): Vedāṅgajyotiṣa; Śatapathabrāhmaṇa; Abhidharmakośa; Āryabhaṭīya; Bhāskara I, *Mahābhāskarīya*; Brahmagupta, *Brahmasphuṭasiddhānta* dan *Khaṇḍakhādyaka*; Sūryasiddhānta; Varāhamihira, *Pañcasiddhāntikā*; Vaṭeśvara, *Vaṭeśvarasiddhānta*; Bhāskara II, *Siddhāntaśiromaṇi* dan *Karaṇakutūhala*; Brahmadeva, *Karaṇaprakāśa*; Gaṇeśa Daivajña, *Grahalāghava*.
 
+## Bintang, nakṣatra, dan yogatārā
+
+- van Leeuwen, F. (2007). *Hipparcos, the New Reduction of the Raw Data*. Astrophysics and Space Science Library 350. Springer, Dordrecht. Katalog CDS I/311 (`hip2.dat`).
+- van Leeuwen, F. (2007). Validation of the new Hipparcos reduction. *Astronomy & Astrophysics*, 474, 653–664. DOI: [10.1051/0004-6361:20078357](https://doi.org/10.1051/0004-6361:20078357)
+- Brandt, T.D. (2021). The Hipparcos–Gaia Catalog of Accelerations: Gaia EDR3 edition. *The Astrophysical Journal Supplement Series*, 254, 42. Katalog CDS J/ApJS/254/42.
+- ESA (1997). *The Hipparcos and Tycho Catalogues*. ESA SP-1200. ESA Publications Division, Noordwijk (magnitudo V dan Variability Annex, Vol. 11).
+- Samus, N.N. et al. (2017). *General Catalogue of Variable Stars*, GCVS 5.1. Katalog CDS B/gcvs.
+- Delporte, E. (1930), batas konstelasi IAU, ditabulasikan oleh Roman, N.G. (1987). Katalog CDS VI/42.
+- Lieske, J.H., Lederle, T., Fricke, W. & Morando, B. (1977). Expressions for the precession quantities based upon the IAU (1976) system of astronomical constants. *Astronomy & Astrophysics*, 58, 1–16.
+- Ballesteros, F.J. (2012). New insights into black bodies. *EPL*, 97, 34008 (perkiraan warna dari B−V).
+- Mukherji, K. (1969; bagian pertama 1905). *Popular Hindu Astronomy, Tārā-maṇḍalas and Nakṣatras*. Pengantar N.C. Lahiri. Nirmal Mukherjea, Calcutta.
+- Roy, R.R. (2019). Sidereal Ecliptic Coordinate System of Sūryasiddhānta. *Indian Journal of History of Science*, 54(3), 287–303. DOI: [10.16943/ijhs/2019/v54i3/49740](https://doi.org/10.16943/ijhs/2019/v54i3/49740)
+- Burgess, E. (1860). Translation of the Surya-Siddhanta. *Journal of the American Oriental Society*, 6, 141–498 (dikutip melalui Mukherji dan Roy).
+- IAU Working Group on Star Names (WGSN). *Catalog of Star Names (IAU-CSN)*.
+- MacRobert, A. (*Sky & Telescope*), melalui Krzywinski, M. *Constellation figures* (garis figur konstelasi).
+
 ## Kalender Jawa-Bali dan epigrafi
 
 - Damais, L.-C. (1955). Études d'épigraphie indonésienne IV: Discussion de la date des inscriptions. *BEFEO*, 47(1), 7–290. DOI: [10.3406/befeo.1955.5406](https://doi.org/10.3406/befeo.1955.5406)
@@ -70,4 +86,4 @@ Teks primer yang dirujuk lewat Hayashi (2017) dan Bag (2003): Vedāṅgajyotiṣ
 
 ## Catatan lisensi data pihak ketiga
 
-Kode OSS ΩLDJAVA berlisensi MIT, tetapi data dan seri yang tertanam berasal dari penyedia lain (IMCCE / Observatoire de Paris untuk VSOP87D dan ELP, IERS, NASA, serta publikasi ilmiah di atas). Tabel rasio satuan waktu disusun dari Hayashi (2017), yang berlisensi CC BY-SA 4.0; ikuti ketentuan atribusi dan pembagian-serupa lisensi itu bila tabelnya didistribusikan terpisah. Ketentuan penggunaan dan atribusi mengikuti penyedia masing-masing. Mohon periksa syarat terbaru mereka sebelum mendistribusikan ulang data tersebut secara terpisah dari aplikasi.
+Kode OSS ΩLDJAVA berlisensi MIT, tetapi data dan seri yang tertanam berasal dari penyedia lain (IMCCE / Observatoire de Paris untuk VSOP87D dan ELP, IERS, NASA, ESA dan CDS untuk Hipparcos, HGCA, dan GCVS, IAU WGSN, serta publikasi ilmiah di atas). Tabel rasio satuan waktu disusun dari Hayashi (2017), yang berlisensi CC BY-SA 4.0; ikuti ketentuan atribusi dan pembagian-serupa lisensi itu bila tabelnya didistribusikan terpisah. Ketentuan penggunaan dan atribusi mengikuti penyedia masing-masing. Mohon periksa syarat terbaru mereka sebelum mendistribusikan ulang data tersebut secara terpisah dari aplikasi.

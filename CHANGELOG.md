@@ -2,6 +2,16 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [R2026_11, revisi] — 2026-11-09
+### Ditambahkan
+- Tab **Nakṣatra & Tārā** dengan delapan sub-tab: Nakṣatra, Tārā Maṇḍala, Rasi & Posisi, Bintang Hindu, **Bulan ↔ Yogatārā**, **Kartu Bintang**, Maṇḍala, dan Validasi. Katalog 8.870 bintang V ≤ 6,5 dari Hipparcos New Reduction (van Leeuwen 2007; CDS I/311), gerak diri jangka panjang HGCA EDR3 (Brandt 2021) untuk 8.429 bintang, serta presesi Lieske ke tanggal terpilih. Tabel yogatārā dan nakṣatra tak-sama dari Mukherji (1969).
+- Tab **Bulan ↔ Yogatārā**: posisi Bulan dari mesin ELP2000-82B OSS terhadap yogatārā.
+- Tab **Kartu Bintang**: B−V, magnitudo, konstelasi (batas IAU, Delporte 1930/Roman 1987), dan data variabilitas (Variability Annex Vol. 11 dan GCVS 5.1).
+- Kartu referensi **Nakṣatra & Tārā Maṇḍala** di halaman Referensi, serta bagian bintang, nakṣatra, dan yogatārā di `CITATIONS.md`.
+
+### Diubah
+- Ukuran berkas sekitar 8,7 MB. Nama berkas tetap, sehingga `sw.js` dan `index.html` tidak berubah.
+
 ## [R2026_11] — 2026-11-06
 ### Diubah
 - Tab **Database Damais** dan **Analisis Sistem Zodiak** digabung menjadi satu tab **Damais & Zodiak**. Tautan lama ke tab Zodiak tetap membuka tab gabungan.
