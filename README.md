@@ -19,7 +19,7 @@ Halaman-halaman di dalam aplikasi:
 | Gnomon | Gnomon (Śaṅku), waktu dari bayangan, lagna, dan muhurta Jawa Kuno |
 | Rāśi Chakra | Lingkaran rāśi / zodiak |
 | Grahacara | Posisi graha |
-| Nakṣatra & Tārā | Nakṣatra, yogatārā, dan tārā-maṇḍala dari katalog Hipparcos (8.870 bintang V ≤ 6,5), dengan sub-tab Nakṣatra, Tārā Maṇḍala, Rasi & Posisi, Bintang Hindu, Bulan ↔ Yogatārā, Kartu Bintang, Maṇḍala, dan Validasi |
+| Nakṣatra & Tārā | Nakṣatra, yogatārā, dan tārā-maṇḍala dari katalog Hipparcos (8.870 bintang V ≤ 6,5), dengan sub-tab Nakṣatra, Tārā Maṇḍala, Rasi & Posisi, **Heliacal Rise**, Bintang Hindu, Bulan ↔ Yogatārā, Kartu Bintang, Maṇḍala, dan Validasi. Sub-tab Heliacal Rise menghitung heliacal rising (pagi) dan setting (senja) bintang nakṣatra dan yogatārā untuk tahun, lokasi, ekstingsi k, dan batas mata m<sub>z</sub> pilihan |
 | Timeline | Garis waktu astronomis |
 | Tanggal Spesifik | Perhitungan untuk satu tanggal dan jam (WIB), termasuk JD, ΔT, dan ayanamsa |
 | Wuku & Wara | Siklus kalender Jawa-Bali |
@@ -35,6 +35,7 @@ Inti perhitungan:
 - **Ephemeris:** VSOP87D (Matahari) dan ELP2000-82B (Bulan), dimuat utuh tanpa pemotongan suku.
 - **Presesi dan nutasi:** model IAU 2006 / 2000A.
 - **Katalog bintang (Nakṣatra & Tārā):** Hipparcos New Reduction (van Leeuwen 2007; CDS I/311) untuk posisi epoch J1991.25, gerak diri jangka panjang Hipparcos–Gaia (HGCA EDR3; Brandt 2021) bila tersedia, dan presesi ke tanggal terpilih. Tabel nakṣatra dan yogatārā mengikuti Mukherji (1969); lihat [`CITATIONS.md`](CITATIONS.md).
+- **Heliacal rising dan setting (Nakṣatra & Tārā → Heliacal Rise):** model visibilitas mata telanjang Schaefer (1993), dengan konstanta ekstingsi k dan batas mata di zenit m<sub>z</sub> mengikuti Schaefer (1987). Resolusi 1 hari, pengamat standar, horizon laut. Posisi bintang dari katalog Hipparcos + gerak diri + presesi OSS, posisi Matahari dari mesin VSOP87D OSS (ΔT OSS). Keluaran: tanggal, jam lokal, tinggi bintang dan Matahari, arcus visionis, azimut, margin (mag), lama bintang hilang dari langit, dan grafik visibilitas setahun.
 - **ΔT:** spline Morrison dkk. (2021) untuk −720 sampai 2019, tabel IERS/EOP setelahnya, dan model Espenak & Meeus sebagai cadangan.
 - **Kalender Saka India (Unit Waktu → Saka):** aritmetika gerak rata-rata tradisional pada Kali Ahargaṇa (KA 0 = Jumat, 18 Februari 3102 SM Julian), dengan bilangan bulat eksak. Aturan dan contoh uji mengikuti Bag (2003) dan Uma & Rao (2018); lihat [`CITATIONS.md`](CITATIONS.md).
 - **EOP IERS:** DUT1 (UT1 − UTC) dan gerak kutub (xp, yp) untuk rentang 1972 sampai akhir tabel.
@@ -78,6 +79,7 @@ Yang dilakukan skrip: menimpa data final dengan C04 terbaru, menambah rapid dan 
 ## Akurasi dan keterbatasan
 
 - Untuk era prasasti Jawa Kuno (abad ke-8 sampai ke-16 M), sumber ketidakpastian terbesar adalah **ΔT historis**, bukan ephemeris: orde puluhan sampai ratusan detik untuk 702–1299 M (Morrison dkk., 2021).
+- Heliacal Rise mengabaikan cahaya Bulan, awan, dan cahaya kota; hasilnya tanggal pada resolusi 1 hari untuk pengamat standar, bukan prediksi pengamatan tunggal. Hasil bergantung pada k dan m<sub>z</sub> yang dipilih.
 - Koreksi dX, dY (≈ 0,5 mas) dan LOD tidak diterapkan.
 - Nilai prediksi EOP dari Bulletin A makin kurang pasti ke arah ujung tabel. Setelah tabel berakhir, UT1 diperlakukan ≈ UTC.
 - Uji verifikasi membuktikan kesesuaian dengan berkas acuan resmi, bukan akurasi absolut.

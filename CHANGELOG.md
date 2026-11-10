@@ -2,6 +2,18 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [R2026_11, revisi 2] — 2026-11-11
+### Ditambahkan
+- Sub-tab **Heliacal Rise** di tab **Nakṣatra & Tārā** (kini sembilan sub-tab). Menghitung heliacal rising (pagi, ufuk timur) dan heliacal setting (senja, ufuk barat) untuk bintang yogatārā dan bintang Mukherji, dengan masukan tahun (Masehi, Julian sebelum 1582; tahun astronomis untuk SM), lintang, bujur, zona waktu, ekstingsi k, dan batas mata m_z. Model visibilitas mata telanjang Schaefer (1993, *Vistas in Astronomy* 36, 311); konstanta k dan m_z mengikuti Schaefer (1987, *JHA* 18, S19). Posisi bintang dari Hipparcos + gerak diri + presesi OSS; posisi Matahari dari VSOP87D OSS (ΔT OSS), rumus Meeus hanya cadangan.
+- Keluaran per bintang: tanggal, jam lokal, tinggi bintang dan Matahari, arcus visionis, azimut, margin (mag), nakṣatra tempat Matahari berada, lama bintang hilang dari langit, dan grafik visibilitas setahun (pagi dan senja). Tombol untuk menghitung semua yogatārā dan bintang Mukherji pada tahun terpilih, serta tombol lokasi GPS.
+- `CITATIONS.md`: Schaefer (1993) dan Schaefer (1987).
+
+### Diubah
+- Ukuran berkas sekitar 8,7 MB. Nama berkas tetap `OSS_OLDJAVA_R2026_11.html`, sehingga `sw.js` dan `index.html` tidak berubah.
+
+### Keterbatasan
+- Tanpa cahaya Bulan, awan, dan cahaya kota; resolusi 1 hari; pengamat standar dan horizon laut.
+
 ## [R2026_11, revisi] — 2026-11-09
 ### Ditambahkan
 - Tab **Nakṣatra & Tārā** dengan delapan sub-tab: Nakṣatra, Tārā Maṇḍala, Rasi & Posisi, Bintang Hindu, **Bulan ↔ Yogatārā**, **Kartu Bintang**, Maṇḍala, dan Validasi. Katalog 8.870 bintang V ≤ 6,5 dari Hipparcos New Reduction (van Leeuwen 2007; CDS I/311), gerak diri jangka panjang HGCA EDR3 (Brandt 2021) untuk 8.429 bintang, serta presesi Lieske ke tanggal terpilih. Tabel yogatārā dan nakṣatra tak-sama dari Mukherji (1969).

@@ -12,6 +12,8 @@ Untuk mengutip aplikasi ini, lihat [`CITATION.cff`](CITATION.cff).
 - Chapront-Touzé, M. & Chapront, J. (1987). ELP2000-85 : une solution du mouvement de la Lune couvrant la période historique. *Notes Scientifiques et Techniques du Bureau des Longitudes*, S021.
 - Chapront, J., Chapront-Touzé, M. & Francou, G. (2002). A new determination of lunar orbital parameters, precession constant and tidal acceleration from LLR measurements. *Astronomy & Astrophysics*, 387, 700–709.
 - Williams, J.G. & Boggs, D.H. (2016). Secular tidal changes in lunar orbit and Earth rotation. *Celestial Mechanics and Dynamical Astronomy*, 126, 89–129. DOI: [10.1007/s10569-016-9702-3](https://doi.org/10.1007/s10569-016-9702-3)
+- Park, R.S., Folkner, W.M., Williams, J.G. & Boggs, D.H. (2021). The JPL Planetary and Lunar Ephemerides DE440 and DE441. *The Astronomical Journal*, 161, 105. DOI: [10.3847/1538-3881/abd414](https://doi.org/10.3847/1538-3881/abd414)
+- Petit, G. & Luzum, B. (eds.) (2010). *IERS Conventions (2010)*. IERS Technical Note No. 36. Verlag des Bundesamts für Kartographie und Geodäsie, Frankfurt am Main.
 - Meeus, J. (1998). *Astronomical Algorithms* (2nd ed.). Willmann-Bell, Richmond.
 - Bennett, G.G. (1982). The calculation of astronomical refraction in marine navigation. *Journal of Navigation*, 35(2), 255–259.
 - Laskar, J. (1986). Secular terms of classical planetary theories using the results of general theory (presesi akumulasi pA).
@@ -52,6 +54,7 @@ Teks primer yang dirujuk lewat Ohashi (1994): Sūryasiddhānta; Brahmagupta, *Br
 
 ## Satuan waktu dan kalender Saka India
 
+- Subbarayappa, B.V. & Sarma, K.V. (1985). *Indian Astronomy: A Source-Book*. Nehru Centre, Bombay.
 - Hayashi, T. (2017). The Units of Time in Ancient and Medieval India. *History of Science in South Asia*, 5.1, 1–116 (CC BY-SA 4.0). Sumber tabel rasio satuan waktu di tab Unit Waktu.
 - Bag, A.K. (2003). Luni-solar calendar, Kali Ahargana and Julian days. *Indian Journal of History of Science*, 38(1), 17–37. Sumber aturan Kali Ahargaṇa dan contoh uji panel Saka.
 - Uma, S.K. & Rao, S.B. (2018). Ahargaṇa in Makarandasāriṇī and other Indian astronomical texts. *Indian Journal of History of Science*, 53(1), 16–32. DOI: [10.16943/ijhs/2018/v53i1/49361](https://doi.org/10.16943/ijhs/2018/v53i1/49361). Sumber aturan dan contoh Grahalāghava.
@@ -71,6 +74,8 @@ Teks primer yang dirujuk lewat Hayashi (2017) dan Bag (2003): Vedāṅgajyotiṣ
 - Mukherji, K. (1969; bagian pertama 1905). *Popular Hindu Astronomy, Tārā-maṇḍalas and Nakṣatras*. Pengantar N.C. Lahiri. Nirmal Mukherjea, Calcutta.
 - Roy, R.R. (2019). Sidereal Ecliptic Coordinate System of Sūryasiddhānta. *Indian Journal of History of Science*, 54(3), 287–303. DOI: [10.16943/ijhs/2019/v54i3/49740](https://doi.org/10.16943/ijhs/2019/v54i3/49740)
 - Burgess, E. (1860). Translation of the Surya-Siddhanta. *Journal of the American Oriental Society*, 6, 141–498 (dikutip melalui Mukherji dan Roy).
+- Schaefer, B.E. (1993). *Vistas in Astronomy*, 36, 311 (model visibilitas heliacal rising dan setting; judul dan halaman akhir perlu dilengkapi dari sumber aslinya).
+- Schaefer, B.E. (1987). *Journal for the History of Astronomy*, 18, S19 (konstanta ekstingsi k dan batas mata m_z; judul dan halaman akhir perlu dilengkapi dari sumber aslinya).
 - IAU Working Group on Star Names (WGSN). *Catalog of Star Names (IAU-CSN)*.
 - MacRobert, A. (*Sky & Telescope*), melalui Krzywinski, M. *Constellation figures* (garis figur konstelasi).
 
