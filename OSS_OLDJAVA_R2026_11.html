@@ -43287,9 +43287,18 @@ function hlEvent(A){var n=A.length,i,p=-1,any=false;for(i=0;i<n;i++)if(A[i]){any
  if(!any)return{s:'never'};var all=true;for(i=0;i<n;i++)if(!A[i])all=false;if(all)return{s:'always'};
  var bs=0,bl=0,cs=-1,cl=0;for(i=1;i<=n;i++){var x=(p+i)%n;if(!A[x]){if(cl==0)cs=x;cl++;if(cl>bl){bl=cl;bs=cs;}}else cl=0;}
  return{s:'ok',first:(bs+bl)%n,last:(bs-1+n)%n,gap:bl};}
+/* Peristiwa heliacal dari DUA deret (pagi M, senja E). Rising/setting hanya ada bila ada periode hilang SEJATI: hari-hari ketika bintang tak terlihat di fajar maupun di senja. Bila tak ada (mis. Agastya/Canopus di lintang rendah: elongasi minimum ke Surya melebihi arcus visionis), hasilnya 'always' — bukan dua tanggal semu dari celah terpanjang tiap deret. */
+function hlEvents(M,E){var n=M.length,i,nm=!M.some(Boolean),ne=!E.some(Boolean);
+ if(nm||ne)return{rise:nm?{s:'never'}:hlEvent(M),set:ne?{s:'never'}:hlEvent(E)};
+ var best=0,bs=-1,cur=0,cs=0,f,l,c;
+ for(i=0;i<2*n;i++){if(!M[i%n]&&!E[i%n]){if(cur==0)cs=i;cur++;if(cur>best&&cur<=n){best=cur;bs=cs;}}else cur=0;}
+ if(!best)return{rise:{s:'always'},set:{s:'always'}};
+ f=(bs+best)%n;c=0;while(!M[f]&&c<n){f=(f+1)%n;c++;}
+ l=(bs-1+n)%n;c=0;while(!E[l]&&c<n){l=(l-1+n)%n;c++;}
+ return{rise:{s:'ok',first:f,last:(f-1+n)%n,gap:best},set:{s:'ok',first:(l+1)%n,last:l,gap:best}};}
 function hlYear(h,Y,la,lo,K,mz){var jdA=hlCal2JD(Y,1,1),n=Math.round(hlCal2JD(Y+1,1,1)-jdA),st=hlStar(h,Y+.5),P={lat:la,K:K,mv:st.V,B0:hlB0(mz,K)},M=[],E=[],d;
  for(d=0;d<n;d++){M.push(hlDay(P,st,lo,jdA+d,true).best>=0);E.push(hlDay(P,st,lo,jdA+d,false).best>=0);}
- return{jdA:jdA,n:n,st:st,P:P,M:M,E:E,rise:hlEvent(M),set:hlEvent(E)};}
+ var EV=hlEvents(M,E);return{jdA:jdA,n:n,st:st,P:P,M:M,E:E,rise:EV.rise,set:EV.set};}
 function hlAz(la,de,H){var r=Math.atan2(-Math.cos(de)*Math.sin(H),Math.sin(de)*Math.cos(la*D)-Math.cos(de)*Math.cos(H)*Math.sin(la*D))/D;return((r%360)+360)%360;}
 function hlDate(jd){var t=String(jd2s(jd)).split(' ')[0],q=/^(-?)(\d+)-(\d+)-(\d+)$/.exec(t);if(!q)return t;var z=function(v,n){v=String(v);while(v.length<n)v='0'+v;return v;};return q[1]+z(q[2],4)+'-'+z(q[3],2)+'-'+z(q[4],2);}
 function hlTime(jd){return String(jd2s(jd)).split(' ')[1]||'';}
@@ -43309,7 +43318,7 @@ function helInit(m){var el=m.querySelector('#hl');if(!el)return;var nw=new Date(
  el.innerHTML='<div class="card"><h3>Heliacal rise &amp; setting · bintang nakṣatra</h3><div class="grid2"><div><label>Bintang</label><select id="hl-k">'+opt+'</select></div><div><label>Tahun (Masehi; Julian sebelum 1582)</label><input type="number" step="1" id="hl-y" value="'+S.hy+'"></div><div><label>Lintang °</label><input type="number" step="0.01" id="hl-la" value="'+S.lat+'"></div><div><label>Bujur ° (timur +)</label><input type="number" step="0.01" id="hl-lo" value="'+S.lon+'"></div><div><label>Zona (UTC±jam)</label><input type="number" step="0.5" id="hl-tz" value="'+S.tz+'"></div><div><label>k ekstingsi (mag/air mass)</label><input type="number" step="0.01" min="0.1" id="hl-K" value="'+S.hK+'"></div><div><label>m<sub>z</sub> batas mata di zenit</label><input type="number" step="0.1" id="hl-z" value="'+S.hz+'"></div></div><button class="tab" id="hl-gps" style="margin-top:8px">📍 Lokasi saya</button><p class="caption">Heliacal rising = hari pertama bintang terlihat di fajar setelah konjungsi dengan Surya; heliacal setting = hari terakhir bintang terlihat di senja sebelum konjungsi. Model: Schaefer (1993, <i>Vistas in Astronomy</i> 36, 311) untuk mata telanjang pengamat standar, horizon laut, resolusi 1 hari; konstanta k dan m<sub>z</sub> mengikuti Schaefer (1987, <i>JHA</i> 18, S19). Tanpa cahaya Bulan, awan, dan cahaya kota. Posisi bintang dari Hipparcos + gerak diri + presesi OSS; Posisi Surya dari mesin VSOP87D OSS (apparent, ΔT OSS); rumus Meeus hanya cadangan bila mesin tak tersedia.</p></div><div class="card" id="hl-r"></div><div class="card"><button class="tab" id="hl-all">📋 Hitung semua yogatārā &amp; bintang Mukherji untuk tahun ini</button><div id="hl-t" style="margin-top:8px"></div></div>';
  function run(){var box=el.querySelector('#hl-r'),R=hlYear(S.hk,S.hy,S.lat,S.lon,S.hK,S.hz),nm=nmOf(S.hk),jy=S.hy+.5,h='<h3>'+nm+' <span class="caption">· HIP '+S.hk+' · V '+R.st.V.toFixed(2)+' · '+S.hy+'</span></h3>';
   function blk(e,mor,tag){if(e.s=='never')return'<div class="description-box"><b>'+tag+':</b> bintang tidak pernah terlihat di twilight pada lintang/ekstingsi ini.</div>';
-   if(e.s=='always')return'<div class="description-box"><b>'+tag+':</b> terlihat sepanjang tahun, tidak ada periode hilang.</div>';
+   if(e.s=='always')return'<div class="description-box"><b>'+tag+':</b> tidak ada periode hilang: bintang selalu terlihat di fajar atau di senja pada lintang/ekstingsi ini (jarak minimum ke Surya melebihi arcus visionis), sehingga heliacal rising/setting tidak terdefinisi.</div>';
    var idx=mor?e.first:e.last,jd0=R.jdA+idx,d=hlDay(R.P,R.st,S.lon,jd0,mor),b=d.bt,g=function(a,c){return App.metric(a,c);};if(!b)return'';
    var sn=((b.sl-ayan(jy))%360+360)%360,av=b.h-b.hs;
    return'<h4 class="dt-h">'+tag+' · '+hlDate(jd0)+'</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">'+g('Tanggal',hlDate(jd0))+g('Jam lokal (UTC'+(S.tz>=0?'+':'')+S.tz+')',hlTime(b.jd+S.tz/24))+g('Tinggi bintang',b.h.toFixed(1)+'°')+g('Tinggi Surya',b.hs.toFixed(1)+'°')+g('Arcus visionis',av.toFixed(1)+'°')+g('Azimut',hlAz(S.lat,R.st.de,b.H).toFixed(0)+'°')+g('Margin',(d.best>=0?'+':'')+d.best.toFixed(2)+' mag')+g('Surya di nakṣatra',eqName(Math.floor(sn/(360/27)))+' · '+dm(sn))+'</div>';}
