@@ -2,6 +2,16 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [R2026_11, revisi 3] — 2026-11-17
+### Diubah
+- Model ΔT 1950–2019: spline MSH2020 kini dipakai sampai 1956 (1950–1956 dengan ramp mulus ke C01), IERS EOP C01 (UT1−TAI) untuk 1956–1972, lalu tabel IERS/EOP dari 1972 (sambungan Hermite 1972,25–1973,0). Sebelumnya spline dipakai sampai 2019. Hasil untuk y < 1950 dan lapisan EOP aktif (UTC ≥ 1972) tidak berubah.
+- Selisih terhadap ΔT turunan EOP 20C04 pada jalur model (lapisan EOP nonaktif): rms 0,22 → 0,06–0,08 s (1972–1980), 0,09–0,10 → 0,03–0,04 s (1980–2000), 0,04–0,05 → 0,003–0,005 s (2000–2019). Spline lama menyimpang dari C01 rms 0,39 s (maks. 0,67 s) pada 1956–1972.
+- Halaman Referensi (sumber, berkas, metode, validasi, keterbatasan) dan teks ringkasan ΔT disesuaikan.
+
+### Keterbatasan
+- Simpul C01 (326) ditanam sehingga bukan uji independen. Tabel ΔT tertanam menyimpang hingga ≈ 0,11 s dari ΔT turunan EOP pada 1973–1980 (tidak berpengaruh bila lapisan EOP aktif).
+- Ukuran berkas sekitar 8,7 MB. Nama berkas tetap, sehingga `sw.js` dan `index.html` tidak berubah.
+
 ## [R2026_11, revisi 2] — 2026-11-11
 ### Ditambahkan
 - Sub-tab **Heliacal Rise** di tab **Nakṣatra & Tārā** (kini sembilan sub-tab). Menghitung heliacal rising (pagi, ufuk timur) dan heliacal setting (senja, ufuk barat) untuk bintang yogatārā dan bintang Mukherji, dengan masukan tahun (Masehi, Julian sebelum 1582; tahun astronomis untuk SM), lintang, bujur, zona waktu, ekstingsi k, dan batas mata m_z. Model visibilitas mata telanjang Schaefer (1993, *Vistas in Astronomy* 36, 311); konstanta k dan m_z mengikuti Schaefer (1987, *JHA* 18, S19). Posisi bintang dari Hipparcos + gerak diri + presesi OSS; posisi Matahari dari VSOP87D OSS (ΔT OSS), rumus Meeus hanya cadangan.

@@ -1046,12 +1046,62 @@ class TimeSystem {
         return this.delta_t_hybrid(Math.floor(Y), null, Y);
     }
 
+    // Interpolasi Catmull–Rom pada simpul IERS C01 (ΔT = 32,184 − (UT1−TAI)), mjd di dalam 35473–41408.
+    _delta_t_c01(mjd) {
+        const C = TimeSystem.DELTA_T_C01, M = C.mjd, V = C.dt, n = M.length;
+        if (mjd <= M[0]) return V[0];
+        if (mjd >= M[n-1]) return V[n-1];
+        let lo = 0, hi = n - 1;
+        while (hi - lo > 1) { const k = (lo + hi) >> 1; if (M[k] < mjd) lo = k; else hi = k; }
+        const i1 = lo, i2 = hi, i0 = Math.max(0, i1 - 1), i3 = Math.min(n - 1, i2 + 1);
+        const t = (mjd - M[i1]) / (M[i2] - M[i1]), v0 = V[i0], v1 = V[i1], v2 = V[i2], v3 = V[i3];
+        return 0.5 * (2*v1 + (v2 - v0)*t + (2*v0 - 5*v1 + 4*v2 - v3)*t*t + (-v0 + 3*v1 - 3*v2 + v3)*t*t*t);
+    }
+
+    // MJD dari tahun desimal (kebalikan _decimal_year_from_jd; skala UTC kalender Gregorian).
+    _mjd_from_decimal_year(Y) {
+        const y = Math.floor(Y);
+        const j0 = this.date_to_jd_utc(y, 1, 1, 0, 0, 0, 0), j1 = this.date_to_jd_utc(y + 1, 1, 1, 0, 0, 0, 0);
+        return j0 + (Y - y) * (j1 - j0) - 2400000.5;
+    }
+
+    // Sambungan Hermite kubik antara simpul terakhir C01 (1972,25) dan simpul pertama tabel IERS bersih (1973,0).
+    _delta_t_bridge(mjd) {
+        const C = TimeSystem.DELTA_T_C01, n = C.mjd.length, t = this._dt_clean;
+        const mE = C.mjd[n-1], vE = C.dt[n-1], sE = (vE - C.dt[n-2]) / (mE - C.mjd[n-2]);
+        const mT = t[0][0], vT = t[0][1], sT = (t[1][1] - vT) / (t[1][0] - mT);
+        const h = mT - mE, u = (mjd - mE) / h, u2 = u * u, u3 = u2 * u;
+        return (2*u3 - 3*u2 + 1)*vE + (u3 - 2*u2 + u)*h*sE + (-2*u3 + 3*u2)*vT + (u3 - u2)*h*sT;
+    }
+
+    // ΔT modern (Y ≥ 1950,0), model 'msh2020':
+    //   1950,0 ≤ Y < 1956,0 : spline MSH2020 + ramp mulus (smoothstep) ke simpul pertama C01 (tanpa lompatan)
+    //   1956,0 ≤ MJD ≤ 41408 : IERS EOP C01, ΔT = 32,184 − (UT1−TAI)
+    //   41408 < MJD < 41683  : sambungan Hermite kubik ke tabel
+    //   41683 ≤ MJD ≤ akhir tabel : tabel IERS/EOP bersih (interpolasi linear)
+    //   selebihnya           : Espenak & Meeus + ekstrapolasi (perilaku lama)
+    _delta_t_modern(Y, mjd) {
+        const C = TimeSystem.DELTA_T_C01, n = C.mjd.length, m0 = C.mjd[0], mE = C.mjd[n-1];
+        if (mjd < m0) {
+            if (this._c01_y0 === undefined) this._c01_y0 = this._decimal_year_from_jd(m0 + 2400000.5);
+            const y0 = this._c01_y0, s = (Y - 1950) / (y0 - 1950);
+            return this.delta_t_msh2020_spline(Y) + (this._delta_t_c01(m0) - this.delta_t_msh2020_spline(y0)) * s * s * (3 - 2*s);
+        }
+        if (mjd <= mE) return this._delta_t_c01(mjd);
+        const t = this._dt_clean;
+        if (t.length > 1) {
+            if (mjd < t[0][0]) return this._delta_t_bridge(mjd);
+            if (mjd <= t[t.length-1][0]) return this._delta_t_from_mjd(mjd);
+        }
+        return this.delta_t_espenak_extended(Y);
+    }
+
     // Urutan prioritas model 'msh2020':
-    //   1) Y < 2019.0     : spline MSH2020 (−720..2019) / parabola (5.1) bergeser (< −720)
-    //   2) Y ≥ 2019.0     : tabel IERS/EOP bersih (bila MJD tersedia dan tercakup)
-    //   3) selebihnya     : Espenak & Meeus + ekstrapolasi (perilaku lama)
+    //   1) Y < 1950,0     : spline MSH2020 (−720..1950) / parabola (5.1) bergeser (< −720)
+    //   2) Y ≥ 1950,0     : rantai modern (_delta_t_modern): ramp ke C01, C01 1956–1972, tabel IERS/EOP bersih,
+    //                       lalu Espenak & Meeus di luar tabel
     // Tahun desimal dihitung dari MJD bila ada (spline bersimpul rapat; tahun bulat
-    // akan menimbulkan galat hingga beberapa detik pada era kuno).
+    // akan menimbulkan galat hingga beberapa detik pada era kuno). Tanpa MJD, MJD diturunkan dari tahun desimal.
     delta_t_hybrid(year_astro, mjd, year_decimal) {
         const hasMjd = (mjd !== undefined && mjd !== null && isFinite(mjd));
         if (this.delta_t_model === 'legacy') return this._delta_t_legacy(year_astro, hasMjd ? mjd : null);
@@ -1059,10 +1109,8 @@ class TimeSystem {
         if (year_decimal !== undefined && year_decimal !== null) Y = Number(year_decimal);
         else if (hasMjd) Y = this._decimal_year_from_jd(mjd + 2400000.5);
         else Y = Number(year_astro);
-        const v = this.delta_t_msh2020(Y);
-        if (!isNaN(v)) return v;
-        const t = this._dt_clean;
-        if (hasMjd && t.length && t[0][0] <= mjd && mjd <= t[t.length-1][0]) return this._delta_t_from_mjd(mjd);
+        if (Y < 1950) { const v = this.delta_t_msh2020(Y); if (!isNaN(v)) return v; }
+        else return this._delta_t_modern(Y, hasMjd ? mjd : this._mjd_from_decimal_year(Y));
         return this.delta_t_espenak_extended(Y);
     }
 
@@ -1238,6 +1286,13 @@ TimeSystem.DELTA_T_MSH2020 = Object.freeze({
     ]
 });
 
+// IERS EOP(IERS) C01 (eopc01_iau2000.1846-now): ΔT = TT−UT1 = 32,184 − (UT1−TAI), 1956–1972, titik normal 0,05 tahun (326 simpul).
+// Dipakai untuk 1956,0–1972,25; sebelumnya spline MSH2020 (ramp mulus 1950–1956), sesudahnya tabel IERS/EOP.
+TimeSystem.DELTA_T_C01 = Object.freeze({
+    mjd: [35473.352, 35491.614, 35509.876, 35528.138, 35546.4, 35564.662, 35582.925, 35601.187, 35619.449, 35637.711, 35655.973, 35674.235, 35692.497, 35710.759, 35729.021, 35747.283, 35765.546, 35783.808, 35802.07, 35820.332, 35838.594, 35856.856, 35875.118, 35893.38, 35911.642, 35929.904, 35948.167, 35966.429, 35984.691, 36002.953, 36021.215, 36039.477, 36057.739, 36076.001, 36094.263, 36112.526, 36130.788, 36149.05, 36167.312, 36185.574, 36203.836, 36222.098, 36240.36, 36258.622, 36276.884, 36295.147, 36313.409, 36331.671, 36349.933, 36368.195, 36386.457, 36404.719, 36422.981, 36441.243, 36459.505, 36477.768, 36496.03, 36514.292, 36532.554, 36550.816, 36569.078, 36587.34, 36605.602, 36623.864, 36642.126, 36660.389, 36678.651, 36696.913, 36715.175, 36733.437, 36751.699, 36769.961, 36788.223, 36806.485, 36824.747, 36843.01, 36861.272, 36879.534, 36897.796, 36916.058, 36934.32, 36952.582, 36970.844, 36989.106, 37007.368, 37025.63, 37043.893, 37062.155, 37080.417, 37098.679, 37116.941, 37135.203, 37153.465, 37171.727, 37189.989, 37208.251, 37226.514, 37244.776, 37263.038, 37281.3, 37299.562, 37317.824, 37336.086, 37354.348, 37372.61, 37390.872, 37409.135, 37427.397, 37445.659, 37463.921, 37482.183, 37500.445, 37518.707, 37536.969, 37555.231, 37573.493, 37591.756, 37610.018, 37628.28, 37646.542, 37664.804, 37683.066, 37701.328, 37719.59, 37737.852, 37756.115, 37774.377, 37792.639, 37810.901, 37829.163, 37847.425, 37865.687, 37883.949, 37902.211, 37920.473, 37938.736, 37956.998, 37975.26, 37993.522, 38011.784, 38030.046, 38048.308, 38066.57, 38084.832, 38103.094, 38121.357, 38139.619, 38157.881, 38176.143, 38194.405, 38212.667, 38230.929, 38249.191, 38267.453, 38285.715, 38303.978, 38322.24, 38340.502, 38358.764, 38377.026, 38395.288, 38413.55, 38431.812, 38450.074, 38468.336, 38486.599, 38504.861, 38523.123, 38541.385, 38559.647, 38577.909, 38596.171, 38614.433, 38632.695, 38650.957, 38669.219, 38687.482, 38705.744, 38724.006, 38742.268, 38760.53, 38778.792, 38797.054, 38815.316, 38833.578, 38851.84, 38870.103, 38888.365, 38906.627, 38924.889, 38943.151, 38961.413, 38979.675, 38997.937, 39016.199, 39034.461, 39052.724, 39070.986, 39089.248, 39107.51, 39125.772, 39144.034, 39162.296, 39180.558, 39198.82, 39217.082, 39235.345, 39253.607, 39271.869, 39290.131, 39308.393, 39326.655, 39344.917, 39363.179, 39381.441, 39399.704, 39417.966, 39436.228, 39454.49, 39472.752, 39491.014, 39509.276, 39527.538, 39545.8, 39564.062, 39582.325, 39600.587, 39618.849, 39637.111, 39655.373, 39673.635, 39691.897, 39710.159, 39728.421, 39746.683, 39764.946, 39783.208, 39801.47, 39819.732, 39837.994, 39856.256, 39874.518, 39892.78, 39911.042, 39929.304, 39947.567, 39965.829, 39984.091, 40002.353, 40020.615, 40038.877, 40057.139, 40075.401, 40093.663, 40111.925, 40130.188, 40148.45, 40166.712, 40184.974, 40203.236, 40221.498, 40239.76, 40258.022, 40276.284, 40294.546, 40312.808, 40331.071, 40349.333, 40367.595, 40385.857, 40404.119, 40422.381, 40440.643, 40458.905, 40477.167, 40495.429, 40513.692, 40531.954, 40550.216, 40568.478, 40586.74, 40605.002, 40623.264, 40641.526, 40659.788, 40678.05, 40696.313, 40714.575, 40732.837, 40751.099, 40769.361, 40787.623, 40805.885, 40824.147, 40842.409, 40860.671, 40878.934, 40897.196, 40915.458, 40933.72, 40951.982, 40970.244, 40988.506, 41006.768, 41025.03, 41043.293, 41061.555, 41079.817, 41098.079, 41116.341, 41134.603, 41152.865, 41171.127, 41189.389, 41207.651, 41225.914, 41244.176, 41262.438, 41280.7, 41298.962, 41317.224, 41335.486, 41353.748, 41372.01, 41390.272, 41408.535],
+    dt: [31.331, 31.3509, 31.3704, 31.3929, 31.4134, 31.4378, 31.4647, 31.4765, 31.4982, 31.5172, 31.5232, 31.525, 31.5342, 31.5379, 31.5504, 31.5605, 31.5869, 31.6105, 31.6362, 31.6507, 31.6843, 31.6987, 31.7157, 31.7404, 31.774, 31.8017, 31.8285, 31.8643, 31.8966, 31.9176, 31.9385, 31.9424, 31.9564, 31.961, 31.9764, 32.0099, 32.0433, 32.0699, 32.1036, 32.1392, 32.1732, 32.2101, 32.2345, 32.2631, 32.2973, 32.3278, 32.3627, 32.3965, 32.4282, 32.4486, 32.461, 32.4722, 32.4849, 32.4966, 32.5086, 32.5291, 32.5603, 32.5944, 32.6193, 32.6501, 32.6745, 32.7041, 32.7303, 32.7597, 32.7903, 32.8165, 32.8439, 32.8682, 32.8873, 32.9114, 32.9271, 32.9289, 32.9543, 32.9628, 32.9821, 33.0091, 33.0393, 33.0745, 33.0977, 33.1303, 33.161, 33.184, 33.2112, 33.2287, 33.2608, 33.2884, 33.3164, 33.35, 33.3722, 33.3914, 33.3951, 33.4112, 33.4146, 33.4298, 33.4463, 33.4609, 33.4821, 33.5125, 33.5366, 33.5626, 33.5863, 33.609, 33.6318, 33.6501, 33.6814, 33.7148, 33.7308, 33.7536, 33.788, 33.7995, 33.8088, 33.8177, 33.8246, 33.8441, 33.8626, 33.8757, 33.8944, 33.9205, 33.9488, 33.9669, 33.997, 34.0224, 34.0425, 34.068, 34.0946, 34.123, 34.1529, 34.1832, 34.2128, 34.2309, 34.2421, 34.2548, 34.27, 34.2832, 34.3037, 34.327, 34.3536, 34.3863, 34.4159, 34.4477, 34.4745, 34.4937, 34.511, 34.5335, 34.5606, 34.5925, 34.6263, 34.6597, 34.689, 34.7149, 34.7358, 34.7505, 34.7674, 34.7892, 34.8149, 34.8461, 34.8818, 34.9248, 34.9618, 34.9962, 35.031, 35.0712, 35.11, 35.1461, 35.186, 35.228, 35.2662, 35.3082, 35.3488, 35.3836, 35.4042, 35.4258, 35.4491, 35.4711, 35.4971, 35.5351, 35.5778, 35.6189, 35.6596, 35.7016, 35.7407, 35.7736, 35.8132, 35.8532, 35.8987, 35.9485, 35.9973, 36.0392, 36.0797, 36.1188, 36.15, 36.179, 36.2094, 36.2412, 36.2794, 36.323, 36.3685, 36.4144, 36.463, 36.505, 36.5443, 36.5871, 36.6332, 36.6787, 36.7242, 36.7747, 36.8273, 36.8793, 36.9261, 36.966, 37.0021, 37.032, 37.0639, 37.1022, 37.1449, 37.192, 37.2416, 37.2932, 37.3438, 37.3904, 37.4331, 37.4726, 37.5161, 37.5636, 37.6128, 37.6627, 37.7157, 37.7678, 37.8152, 37.8533, 37.8862, 37.9164, 37.9469, 37.9817, 38.0175, 38.0585, 38.1034, 38.1526, 38.2013, 38.249, 38.2958, 38.3398, 38.387, 38.4361, 38.482, 38.5292, 38.5844, 38.6352, 38.6822, 38.7267, 38.7596, 38.7921, 38.8295, 38.8715, 38.9133, 38.9601, 39.0075, 39.0579, 39.1086, 39.1566, 39.2028, 39.2472, 39.2943, 39.347, 39.4026, 39.4616, 39.5199, 39.5735, 39.6235, 39.6713, 39.7078, 39.745, 39.7808, 39.8183, 39.8658, 39.9175, 39.9712, 40.0243, 40.0767, 40.1304, 40.1802, 40.2343, 40.2875, 40.3437, 40.3998, 40.4598, 40.5201, 40.5758, 40.6263, 40.672, 40.7115, 40.7489, 40.7822, 40.8188, 40.8603, 40.9076, 40.959, 41.016, 41.0718, 41.1225, 41.1704, 41.2206, 41.2673, 41.312, 41.3644, 41.4238, 41.4812, 41.5388, 41.5967, 41.6466, 41.6905, 41.7344, 41.7775, 41.8232, 41.8748, 41.9297, 41.9921, 42.0573, 42.1216, 42.1781, 42.2302, 42.2856, 42.3465, 42.4075, 42.4693, 42.5322]
+});
+
 // Uji konsistensi koefisien: kekontinuan C0 antar-segmen (seharusnya < 0,01 s).
 TimeSystem.msh2020_max_jump = function() {
     const R = TimeSystem.DELTA_T_MSH2020.rows; let m = 0;
@@ -1251,8 +1306,9 @@ TimeSystem.msh2020_max_jump = function() {
 TimeSystem.DELTA_T_SOURCES = Object.freeze({
     groups: [
         { title: 'A. Model \u0394T utama (spline MSH2020)', items: [
-            { cite: 'Morrison, L.V., Stephenson, F.R., Hohenkerk, C.Y. & Zawilski, M. (2021). Addendum 2020 to \u2018Measurement of the Earth\u2019s rotation: 720 BC to AD 2015\u2019. Proceedings of the Royal Society A, 477, 20200776.', doi: '10.1098/rspa.2020.0776', role: 'Spline \u0394T \u2212720 s.d. 2019 (Tabel S15, versi 2020); parabola jangka panjang pers. (5.1); batas gerhana tak-berwaktu terbaru (Tabel 1\u20133, S10, S11).' },
-            { cite: 'Stephenson, F.R., Morrison, L.V. & Hohenkerk, C.Y. (2016). Measurement of the Earth\u2019s rotation: 720 BC to AD 2015. Proceedings of the Royal Society A, 472, 20160404 (termasuk Supplement).', doi: '10.1098/rspa.2016.0404', role: 'Kompilasi gerhana pra-teleskop, okultasi bulan 1623\u20132015, dan metode penyesuaian spline.' }
+            { cite: 'Morrison, L.V., Stephenson, F.R., Hohenkerk, C.Y. & Zawilski, M. (2021). Addendum 2020 to \u2018Measurement of the Earth\u2019s rotation: 720 BC to AD 2015\u2019. Proceedings of the Royal Society A, 477, 20200776.', doi: '10.1098/rspa.2020.0776', role: 'Spline \u0394T \u2212720 s.d. 1956 (Tabel S15, versi 2020; 1950\u20131956 dengan ramp mulus ke C01); parabola jangka panjang pers. (5.1); batas gerhana tak-berwaktu terbaru (Tabel 1\u20133, S10, S11).' },
+            { cite: 'Stephenson, F.R., Morrison, L.V. & Hohenkerk, C.Y. (2016). Measurement of the Earth\u2019s rotation: 720 BC to AD 2015. Proceedings of the Royal Society A, 472, 20160404 (termasuk Supplement).', doi: '10.1098/rspa.2016.0404', role: 'Kompilasi gerhana pra-teleskop, okultasi bulan 1623\u20132015, dan metode penyesuaian spline.' },
+            { cite: 'IERS Earth Orientation Centre (Observatoire de Paris). EOP (IERS) C01, berkas eopc01_iau2000.1846-now: UT1\u2212TAI, seri 1846\u2013sekarang.', doi: null, role: '\u0394T = 32,184 \u2212 (UT1\u2212TAI) untuk 1956\u20131972 (326 titik normal 0,05 tahun, ditanam di TimeSystem.DELTA_T_C01).' }
         ] },
         { title: 'B. Data pengamatan', items: [
             { cite: 'Herald, D. & Gault, D. (2012). Lunar Occultation Archive VI/132B. Centre de Donn\u00e9es astronomiques de Strasbourg (CDS).', doi: null, role: 'Okultasi bintang oleh Bulan 1623\u2013sekarang; dasar bagian teleskopik spline (tidak ditanam di OSS).' },
@@ -1276,7 +1332,8 @@ TimeSystem.DELTA_T_SOURCES = Object.freeze({
         ] }
     ],
     files: [
-        ['Table-S15_2020.txt', 'Koefisien spline, 58 baris, \u2212720,0\u20132019,0 (v. 2020)', 'Ditanam penuh (TimeSystem.DELTA_T_MSH2020)'],
+        ['Table-S15_2020.txt', 'Koefisien spline, 58 baris, \u2212720,0\u20132019,0 (v. 2020)', 'Ditanam penuh (TimeSystem.DELTA_T_MSH2020); dipakai sampai 1956'],
+        ['eopc01_iau2000.1846-now', 'UT1\u2212TAI IERS C01, titik normal 0,05 tahun, 1956\u20131972 (326)', 'Ditanam (TimeSystem.DELTA_T_C01)'],
         ['Table-S10_2020.txt', 'Batas gerhana total/annular tak-berwaktu (48)', 'Ditanam (dt-obs.untimed) untuk grafik'],
         ['Table-S11_2020.txt', 'Batas gerhana parsial tak-berwaktu (revisi 2020)', 'Dibaca untuk verifikasi; tidak ditanam'],
         ['Table-S01\u2013S03, S05\u2013S09', 'Pengamatan berwaktu: Babilonia 171, Cina 111, Yunani 11, Arab 54', 'Ditanam (dt-obs.timed), bobot 0 tidak digambar'],
@@ -1285,9 +1342,9 @@ TimeSystem.DELTA_T_SOURCES = Object.freeze({
     ],
     methods: [
         '\u0394T = TT \u2212 UT (detik), dievaluasi pada tahun desimal Y dari JD (kalender Julian/Gregorian, penomoran astronomis: 1 SM = 0).',
-        '\u2212720 \u2264 Y < 2019,0: spline kubik piecewise Tabel S15 (2020). Untuk baris i dengan K_i \u2264 Y \u2264 K_{i+1}: t = (Y\u2212K_i)/(K_{i+1}\u2212K_i); \u0394T = a0 + a1\u00b7t + a2\u00b7t\u00b2 + a3\u00b7t\u00b3.',
+        '\u2212720 \u2264 Y < 1950,0: spline kubik piecewise Tabel S15 (2020); 1950,0 \u2264 Y < 1956,0: spline yang sama ditambah koreksi smoothstep sehingga bersambung pada simpul pertama C01. Untuk baris i dengan K_i \u2264 Y \u2264 K_{i+1}: t = (Y\u2212K_i)/(K_{i+1}\u2212K_i); \u0394T = a0 + a1\u00b7t + a2\u00b7t\u00b2 + a3\u00b7t\u00b3.',
         'Y < \u2212720: parabola pers. (5.1), \u0394T = \u221210 + 31,4\u00b7((Y\u22121825)/100)\u00b2, digeser +44 s agar kontinu di \u2212720 (keputusan implementasi OSS).',
-        'Y \u2265 2019,0: tabel IERS/EOP (interpolasi linear, sudah dibersihkan dan terurut); di luar cakupan: polinomial Espenak & Meeus dan ekstrapolasi linear (perilaku lama).',
+        '1956,0 \u2264 Y \u2264 1972,25: IERS EOP C01, \u0394T = 32,184 \u2212 (UT1\u2212TAI), interpolasi Catmull\u2013Rom; 1972,25\u20131973,0: sambungan Hermite kubik; \u2265 1973,0: tabel IERS/EOP (interpolasi linear, sudah dibersihkan dan terurut); di luar cakupan: polinomial Espenak & Meeus dan ekstrapolasi linear (perilaku lama).',
         'Pembanding NASA: pers. (9)\u2013(26) Espenak & Meeus dengan y = tahun + (bulan \u2212 0,5)/12 dan koreksi c = \u22120,000012932\u00b7(y\u22121955)\u00b2 (di luar 1955\u20132005).',
         '\u03c3 yang ditampilkan adalah \u03c3 MS2004 (pers. 27 dan \u00a72.8 Espenak & Meeus), bukan galat spline MSH2020.',
         'Mesin Bulan: koreksi percepatan sekuler, AKTIF secara default (pasangan konsisten dengan \u0394T MSH2020): \u0394W1 = \u22120,9817\u2033\u00b7T\u00b2 (T abad Julian dari J2000) = \u00bd(\u221225,858 \u2212 (\u221223,8946)). Nonaktifkan dengan ELP82B.set_tidal_correction(false).',
@@ -1295,6 +1352,9 @@ TimeSystem.DELTA_T_SOURCES = Object.freeze({
     ],
     validation: [
         ['Koefisien S15 (2020)', '58 baris identik dengan berkas; lompatan C0 antar-segmen maks. 0,001 s'],
+        ['Rantai \u0394T 1972\u20132019 (jalur model, tanpa lapisan EOP)', 'Selisih terhadap \u0394T turunan EOP 20C04/Bulletin A (TAI\u2212UT1 + 32,184), rms: 0,06 s (1972\u20131973), 0,08 s (1973\u20131980), 0,04 s (1980\u20131990), 0,03 s (1990\u20132000), 0,005 s (2000\u20132010), 0,003 s (2010\u20132019); spline lama: 0,22 s (1972\u20131980), 0,09\u20130,10 s (1980\u20132000), 0,04\u20130,05 s (2000\u20132019)'],
+        ['C01 1956\u20131972', 'Simpul tertanam sama dengan data C01 (bukan uji independen); spline lama menyimpang dari C01 rms 0,39 s (maks. 0,67 s)'],
+        ['Kontinuitas dan kemulusan', 'Loncatan pada 1950,0, awal/akhir C01, dan awal tabel \u2264 0,001 s; second difference bulanan 1790\u20131972 maks. 0,035 s; hasil y < 1950 tidak berubah'],
         ['Implementasi spline', 'Selisih terhadap implementasi acuan terpisah \u2264 4\u00d710\u207b\u00b9\u00b2 s pada seluruh rentang'],
         ['10 batas gerhana kritis', 'MSH2020 melanggar 2 (454: 13 s; 1239: 14 s)'],
         ['Polinomial NASA vs katalog', 'Selisih maks. 1,52 s (11.898 gerhana Matahari) dan 1,44 s (12.064 gerhana Bulan)'],
@@ -1306,7 +1366,8 @@ TimeSystem.DELTA_T_SOURCES = Object.freeze({
         ['Integrasi panchanga (v8 vs \u0394T baru + koreksi Bulan)', '400 tanggal acak 1\u20131300 M, tengah hari: 1 pergantian tithi (222-02-09: tithi 11 \u2192 10); elongasi bergeser rata-rata \u22120,033\u00b0, maks. 0,128\u00b0; era modern (2026) tidak berubah']
     ],
     limitations: [
-        'Spline hanya berlaku \u2212720..2019; sebelum itu parabola bergeser (galat \u0394T ribuan detik di era jauh).',
+        'Spline MSH2020 dipakai \u2212720..1956 (1950\u20131956 dengan ramp ke C01); sebelum \u2212720 parabola bergeser (galat \u0394T ribuan detik di era jauh).',
+        'Tabel \u0394T tertanam (dt-table) menyimpang hingga \u2248 0,11 s dari \u0394T turunan EOP 20C04 pada 1973\u20131980; tidak berpengaruh bila lapisan EOP aktif (TT\u2212UTC dari detik kabisat, UT1 dari EOP).',
         '\u03c3 MS2004 bukan galat statistik spline MSH2020; selisih MSH2020\u2212NASA pada 1000\u20131600 jauh melampaui \u03c3 tersebut.',
         'Dua batas kritis (454, 1239) dilampaui \u2264 14 s oleh spline; diwarisi dari spline terbitan (Tabel S15 versi 2020); koefisien dan kontinuitas spline telah diverifikasi.',
         'Uji konsistensi efemeris memakai TD gerhana terbesar NASA dan kalibrasi geometri pada 1800\u20132100; bukan pembandingan langsung dengan JPL DE.',
@@ -38158,7 +38219,7 @@ App.render_beranda = function(main) {
   h += '<div class="description-box">' +
     '<b>Ephemeris:</b> VSOP87D (<i>Bretagnon &amp; Francou, 1988</i>) · ELP2000-82B (<i>Chapront-Touzé dkk., 2001</i>)<br>' +
     '<b>Kalender Saka-Wuku:</b> sistem epigrafi Jawa Kuno berbasis Damais (1955) dan Eade &amp; Gislén (2000)<br>' +
-    '<b>Koreksi waktu:</b> ΔT spline Morrison dkk. (2021; HMNAO) untuk −720…2019 · IERS/EOP setelah 2019 · polinomial Espenak &amp; Meeus (2006) sebagai cadangan<br>' +
+    '<b>Koreksi waktu:</b> ΔT spline Morrison dkk. (2021; HMNAO) untuk −720…1956 · IERS C01 1956–1972 · tabel IERS/EOP setelah 1972 · polinomial Espenak &amp; Meeus (2006) sebagai cadangan<br>' +
     '<b>Lokasi acuan:</b> Jolotundo, Jawa Timur (−7.609444°, 112.595556°, elev. 554.5 m)<br><br>' +
     '<a href="#" onclick="App.navigate(\'referensi\');return false;" style="color:var(--link);text-decoration:underline">📖 Daftar referensi lengkap →</a>' +
   '</div>';
@@ -41761,7 +41822,7 @@ App.render_referensi = function(main) {
     + '<li><b>VSOP87D</b> menghasilkan koordinat Bumi pada <i>mean ecliptic and equinox of date</i>. Argumen waktu = <i>dynamical time</i> = TT = TAI + 32,184 s.</li>'
     + '<li><b>ELP2000-82B</b> menghasilkan <i>rectangular coordinates</i> Bulan pada <i>mean ecliptic and equinox J2000</i>. Untuk memperoleh posisi pada tanggal bersangkutan, koordinat dirotasi menggunakan <i>accumulated precession p<sub>A</sub></i> (Laskar, 1986) dan polinomial <i>P</i>, <i>Q</i> lima suku.</li>'
     + '<li>OSS menempatkan kedua solusi pada <i>mean ecliptic and equinox of date</i> sebelum perhitungan tithi, nak\u1e63atra, dan panjang hari.</li>'
-    + '<li><b>\u0394T tidak berasal dari ELP82B maupun VSOP87D.</b> Nilainya dihitung dari spline Morrison, Stephenson, Hohenkerk &amp; Zawilski (2021, Tabel S15 versi 2020) untuk \u2212720 s.d. 2019 (didasarkan pada gerhana pra-teleskop dan okultasi bulan), parabola jangka panjang (5.1) untuk sebelum \u2212720, tabel IERS/EOP setelah 2019, dan polinomial Espenak &amp; Meeus (2006) sebagai cadangan di luar cakupan data. Model lama (jangkar gerhana 702\u20131299 M) tetap tersedia sebagai pembanding. Uji terhadap TD gerhana katalog NASA menunjukkan Bulan ELP2000-82B asli tertinggal secara kuadratik di era kuno (\u2248186 detik di sekitar 1000 M); koreksi percepatan sekuler (aktif secara default; <code>ELP82B.set_tidal_correction(false)</code> untuk menonaktifkan) menghilangkannya (lihat Referensi \u2192 \u0394T).</li>'
+    + '<li><b>\u0394T tidak berasal dari ELP82B maupun VSOP87D.</b> Nilainya dihitung dari spline Morrison, Stephenson, Hohenkerk &amp; Zawilski (2021, Tabel S15 versi 2020) untuk \u2212720 s.d. 1956 (didasarkan pada gerhana pra-teleskop dan okultasi bulan), parabola jangka panjang (5.1) untuk sebelum \u2212720, IERS EOP C01 untuk 1956\u20131972, tabel IERS/EOP setelah 1972, dan polinomial Espenak &amp; Meeus (2006) sebagai cadangan di luar cakupan data. Model lama (jangkar gerhana 702\u20131299 M) tetap tersedia sebagai pembanding. Uji terhadap TD gerhana katalog NASA menunjukkan Bulan ELP2000-82B asli tertinggal secara kuadratik di era kuno (\u2248186 detik di sekitar 1000 M); koreksi percepatan sekuler (aktif secara default; <code>ELP82B.set_tidal_correction(false)</code> untuk menonaktifkan) menghilangkannya (lihat Referensi \u2192 \u0394T).</li>'
     + '<li>Aberasi tahunan dan paralaks diurnal dihitung terpisah. Koreksi relativistik lokal Bumi pada tingkat LLR tidak diterapkan.</li>'
     + '</ul>'
 

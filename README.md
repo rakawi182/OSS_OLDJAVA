@@ -36,7 +36,7 @@ Inti perhitungan:
 - **Presesi dan nutasi:** model IAU 2006 / 2000A.
 - **Katalog bintang (Nakṣatra & Tārā):** Hipparcos New Reduction (van Leeuwen 2007; CDS I/311) untuk posisi epoch J1991.25, gerak diri jangka panjang Hipparcos–Gaia (HGCA EDR3; Brandt 2021) bila tersedia, dan presesi ke tanggal terpilih. Tabel nakṣatra dan yogatārā mengikuti Mukherji (1969); lihat [`CITATIONS.md`](CITATIONS.md).
 - **Heliacal rising dan setting (Nakṣatra & Tārā → Heliacal Rise):** model visibilitas mata telanjang Schaefer (1993), dengan konstanta ekstingsi k dan batas mata di zenit m<sub>z</sub> mengikuti Schaefer (1987). Resolusi 1 hari, pengamat standar, horizon laut. Posisi bintang dari katalog Hipparcos + gerak diri + presesi OSS, posisi Matahari dari mesin VSOP87D OSS (ΔT OSS). Keluaran: tanggal, jam lokal, tinggi bintang dan Matahari, arcus visionis, azimut, margin (mag), lama bintang hilang dari langit, dan grafik visibilitas setahun.
-- **ΔT:** spline Morrison dkk. (2021) untuk −720 sampai 2019, tabel IERS/EOP setelahnya, dan model Espenak & Meeus sebagai cadangan.
+- **ΔT:** spline Morrison dkk. (2021) untuk −720 sampai 1956 (ramp mulus ke C01 pada 1950–1956), IERS EOP C01 untuk 1956–1972, tabel IERS/EOP setelah 1972, dan model Espenak & Meeus sebagai cadangan.
 - **Kalender Saka India (Unit Waktu → Saka):** aritmetika gerak rata-rata tradisional pada Kali Ahargaṇa (KA 0 = Jumat, 18 Februari 3102 SM Julian), dengan bilangan bulat eksak. Aturan dan contoh uji mengikuti Bag (2003) dan Uma & Rao (2018); lihat [`CITATIONS.md`](CITATIONS.md).
 - **EOP IERS:** DUT1 (UT1 − UTC) dan gerak kutub (xp, yp) untuk rentang 1972 sampai akhir tabel.
 

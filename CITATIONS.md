@@ -28,6 +28,7 @@ Untuk mengutip aplikasi ini, lihat [`CITATION.cff`](CITATION.cff).
 ## Rotasi Bumi, ΔT, dan eklips
 
 - Morrison, L.V., Stephenson, F.R., Hohenkerk, C.Y. & Zawilski, M. (2021). Addendum 2020 to "Measurement of the Earth's rotation: 720 BC to AD 2015". *Proceedings of the Royal Society A*, 477, 20200776. DOI: [10.1098/rspa.2020.0776](https://doi.org/10.1098/rspa.2020.0776)
+- IERS Earth Orientation Centre. EOP (IERS) C01, berkas `eopc01_iau2000.1846-now` (UT1−TAI). Dipakai untuk ΔT = 32,184 − (UT1−TAI) pada 1956–1972.
 - Stephenson, F.R., Morrison, L.V. & Hohenkerk, C.Y. (2016). Measurement of the Earth's rotation: 720 BC to AD 2015. *Proceedings of the Royal Society A*, 472, 20160404. DOI: [10.1098/rspa.2016.0404](https://doi.org/10.1098/rspa.2016.0404)
 - Morrison, L.V. & Stephenson, F.R. (2004). Historical values of the Earth's clock error ΔT and the calculation of eclipses. *Journal for the History of Astronomy*, 35(3), 327–336.
 - Espenak, F. & Meeus, J. (2006). *Five Millennium Canon of Solar Eclipses: −1999 to +3000*. NASA/TP-2006-214141.
