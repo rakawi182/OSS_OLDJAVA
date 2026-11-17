@@ -37560,7 +37560,7 @@ App.render_gnomon = function(main){
       if(k==='tz'){ S.tzm='man'; S.last=false; } if(k==='lon'&&(S.tzm==='lmt'||S.tzm==='last')) S.tz=(((v+180)%360+360)%360-180)/15; }
     C={}; fill(); syncTime(); draw(true); }); });
   function setTz(v,m){ if(!isFinite(v)) return; S.tz=v; S.tzm=m||'man'; S.last=(S.tzm==='last'); C={}; fill(); syncTime(); draw(true); }
-  function setLoc(la,lo,src,acc){ S.lat=Math.max(-89.99,Math.min(89.99,la)); S.lon=((lo+180)%360+360)%360-180; S.locsrc=src; S.locacc=acc||0; S.locmsg='';
+  function setLoc(la,lo,src,acc){ S.lat=+Math.max(-89.99,Math.min(89.99,la)).toFixed(6); S.lon=+(((lo+180)%360+360)%360-180).toFixed(6); S.locsrc=src; S.locacc=acc||0; S.locmsg='';
     if(S.tzm==='lmt'||S.tzm==='last') S.tz=S.lon/15; C={}; fill(); syncTime(); draw(true); }
   $('gn-jolo').onclick=function(){ setLoc(-7.609444,112.595556,'def',0); };
   $('gn-gps').onclick=function(){ var lb=$('gn-locb');
