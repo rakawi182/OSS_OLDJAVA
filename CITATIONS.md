@@ -13,6 +13,7 @@ Untuk mengutip aplikasi ini, lihat [`CITATION.cff`](CITATION.cff).
 - Chapront, J., Chapront-Touzé, M. & Francou, G. (2002). A new determination of lunar orbital parameters, precession constant and tidal acceleration from LLR measurements. *Astronomy & Astrophysics*, 387, 700–709.
 - Williams, J.G. & Boggs, D.H. (2016). Secular tidal changes in lunar orbit and Earth rotation. *Celestial Mechanics and Dynamical Astronomy*, 126, 89–129. DOI: [10.1007/s10569-016-9702-3](https://doi.org/10.1007/s10569-016-9702-3)
 - Park, R.S., Folkner, W.M., Williams, J.G. & Boggs, D.H. (2021). The JPL Planetary and Lunar Ephemerides DE440 and DE441. *The Astronomical Journal*, 161, 105. DOI: [10.3847/1538-3881/abd414](https://doi.org/10.3847/1538-3881/abd414)
+- Giorgini, J.D. et al. (1996). JPL's On-Line Solar System Data Service. *Bulletin of the American Astronomical Society*, 28, 1158. Layanan JPL Horizons (API), sumber data acuan uji silang DE441.
 - Petit, G. & Luzum, B. (eds.) (2010). *IERS Conventions (2010)*. IERS Technical Note No. 36. Verlag des Bundesamts für Kartographie und Geodäsie, Frankfurt am Main.
 - Meeus, J. (1998). *Astronomical Algorithms* (2nd ed.). Willmann-Bell, Richmond.
 - Bennett, G.G. (1982). The calculation of astronomical refraction in marine navigation. *Journal of Navigation*, 35(2), 255–259.

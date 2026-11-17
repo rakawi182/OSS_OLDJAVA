@@ -40,14 +40,14 @@ Inti perhitungan:
 - **Kalender Saka India (Unit Waktu → Saka):** aritmetika gerak rata-rata tradisional pada Kali Ahargaṇa (KA 0 = Jumat, 18 Februari 3102 SM Julian), dengan bilangan bulat eksak. Aturan dan contoh uji mengikuti Bag (2003) dan Uma & Rao (2018); lihat [`CITATIONS.md`](CITATIONS.md).
 - **EOP IERS:** DUT1 (UT1 − UTC) dan gerak kutub (xp, yp) untuk rentang 1972 sampai akhir tabel.
 
-Hasil uji silang terhadap JPL Horizons (DE441) dan batas keterbatasannya tercantum di halaman **Referensi** di dalam aplikasi.
+Hasil uji silang terhadap JPL Horizons (DE441), termasuk uji era Jawa Kuno 500–1500 M yang dijalankan dengan tombol Run, dan batas keterbatasannya tercantum di halaman **Referensi** di dalam aplikasi.
 
 ## Cara memakai
 
 1. Unduh berkas `OSS_OLDJAVA_R2026_11.html` (atau versi terbaru) dari repositori ini.
 2. Buka berkas itu di browser (Chrome, Firefox, Edge, dan sebagainya). Di Android, buka dari aplikasi pengelola berkas.
 
-Ukuran berkas sekitar 8,7 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
+Ukuran berkas sekitar 8,8 MB karena seluruh data dan seri ephemeris sudah tertanam. Pengaturan seperti DUT1 manual tidak disimpan setelah halaman dimuat ulang.
 
 ## Pasang sebagai aplikasi (PWA)
 
@@ -78,7 +78,7 @@ Yang dilakukan skrip: menimpa data final dengan C04 terbaru, menambah rapid dan 
 
 ## Akurasi dan keterbatasan
 
-- Untuk era prasasti Jawa Kuno (abad ke-8 sampai ke-16 M), sumber ketidakpastian terbesar adalah **ΔT historis**, bukan ephemeris: orde puluhan sampai ratusan detik untuk 702–1299 M (Morrison dkk., 2021).
+- Untuk era prasasti Jawa Kuno (abad ke-8 sampai ke-16 M), **ΔT historis** harus diperhitungkan sebagai sumber ketidakpastian: orde puluhan sampai ratusan detik untuk 702–1299 M (Morrison dkk., 2021), dengan satu detik ΔT setara ≈ 0,55″ pada posisi Bulan dan ≈ 0,04″ pada posisi Matahari. Selisih OSS terhadap JPL Horizons DE441 pada 500–1500 M (Bulan ≈ 12,5–14,7″ RMS) adalah selisih antarmodel; DE441 bukan kebenaran mutlak, sehingga angka itu bukan galat terhadap langit dan tidak dijumlahkan dengan ketidakpastian ΔT.
 - Heliacal Rise mengabaikan cahaya Bulan, awan, dan cahaya kota; hasilnya tanggal pada resolusi 1 hari untuk pengamat standar, bukan prediksi pengamatan tunggal. Hasil bergantung pada k dan m<sub>z</sub> yang dipilih.
 - Koreksi dX, dY (≈ 0,5 mas) dan LOD tidak diterapkan.
 - Nilai prediksi EOP dari Bulletin A makin kurang pasti ke arah ujung tabel. Setelah tabel berakhir, UT1 diperlakukan ≈ UTC.

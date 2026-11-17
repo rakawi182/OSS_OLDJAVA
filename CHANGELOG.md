@@ -2,6 +2,22 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [R2026_11, revisi 4] — 2026-11-17
+### Ditambahkan
+- Kartu **Validation — Old Javanese Era (500–1500 AD) vs JPL Horizons DE441** di halaman Referensi, dijalankan dengan tombol **Run** (tidak berjalan otomatis; ada tombol Recompute dan Download CSV). Memakai 295 epok DE441 (langkah 1242,3 hari): state geosentrik Bumi (VSOP87D, rotasi IAU 2006 dan IAU 1976) dan Bulan (ELP82B, suku sekuler hidup dan mati), posisi tampak toposentrik Matahari dan Bulan di Jolotundo (skenario A: TT dan UT1 dari Horizons; skenario B: ΔT OSS dan UT1 = UT), perbandingan ΔT OSS dengan Horizons (informasi, bukan penilaian ΔT), gerbang regresi untuk skenario A, dan tabel 295 epok.
+- Data acuan (JPL Horizons API, DE441, diambil 2026-11-15) tertanam di blok `horizons-oldjava-ref` (±114 KB).
+- `CITATIONS.md`: Giorgini dkk. (1996), JPL Horizons.
+
+### Diubah
+- Catatan teknis di Referensi (bagian 6 dan 7) merujuk ke kartu baru. Kalimat bahwa kontribusi kesalahan VSOP87D dan ELP2000-82B pada era prasasti di bawah 1″ diganti dengan selisih terhadap DE441 pada 500–1500 M: Matahari ≈ 0,4–0,7″ RMS (posisi tampak toposentrik; posisi geometrik Bumi 1,9″ RMS, maks. 2,56″), Bulan ≈ 12,5–14,7″ RMS (maks. Bulan ≈ 29″ pada skenario A, ≈ 37″ pada B).
+- Mesin ephemeris, model ΔT, dan lapisan EOP tidak diubah.
+
+### Keterbatasan
+- Selisih Bulan (ELP82B) terhadap DE441 pada 500–1500 M melebihi batas 10″ yang dikutip di bagian 6 catatan teknis; batas itu bertumpu pada hasil 1900–2101. DE441 adalah model pembanding, bukan kebenaran mutlak, jadi selisih ini bukan galat absolut.
+- Selisih ΔT OSS terhadap Horizons (−22,4 sampai −2,2 s) membandingkan dua model dan tidak menilai ΔT OSS. Selisih waktu sideris lokal OSS terhadap Horizons (rata-rata −0,106 s) belum ditelusuri penyebabnya; dampaknya ≈ 49 m rotasi bumi (≈ 56 m pada selisih terbesar, 0,122 s).
+- Azimut dan elevasi tidak dibandingkan karena diturunkan dari besaran yang sama.
+- Ukuran berkas sekitar 8,8 MB. Nama berkas tetap `OSS_OLDJAVA_R2026_11.html`, sehingga `sw.js` dan `index.html` tidak berubah.
+
 ## [R2026_11, revisi 3] — 2026-11-17
 ### Diubah
 - Model ΔT 1950–2019: spline MSH2020 kini dipakai sampai 1956 (1950–1956 dengan ramp mulus ke C01), IERS EOP C01 (UT1−TAI) untuk 1956–1972, lalu tabel IERS/EOP dari 1972 (sambungan Hermite 1972,25–1973,0). Sebelumnya spline dipakai sampai 2019. Hasil untuk y < 1950 dan lapisan EOP aktif (UTC ≥ 1972) tidak berubah.
